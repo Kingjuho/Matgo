@@ -21,7 +21,7 @@ public enum CardMonth
 public enum CardType
 {
     Pee,        // 피
-    Sangpee,    // 쌍피
+    Ssangpee,    // 쌍피
     Ddee,       // 띠
     Yeolggeut,  // 열끗
     Gwang       // 광
