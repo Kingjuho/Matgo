@@ -557,8 +557,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbd11ad5cfcbf2742a17f830521a3099, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Deck
-  cardPrefab: {fileID: 4471803830289106606, guid: 8f99c83bbd6e3a948956a3c538801feb, type: 3}
-  deckParent: {fileID: 0}
+  cardPrefab: {fileID: 5113227505793569510, guid: 088c18f83caa6f940af61f340cbc3bc5, type: 3}
+  deckParent: {fileID: 968645943}
 --- !u!1 &1306175962
 GameObject:
   m_ObjectHideFlags: 0

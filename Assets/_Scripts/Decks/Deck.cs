@@ -79,12 +79,13 @@ public class Deck : MonoBehaviour
     void CreateCardObject(CardMonth month, CardType type, SpecialFeature feature, Sprite sprite)
     {
         // 오브젝트 생성 및 하이어라키 정리
-        GameObject go = Instantiate(cardPrefab, deckParent);
-        go.name = $"{month}_{type}";
+        GameObject go = Instantiate(cardPrefab, deckParent, false);
+        go.name = $"{(int)month}_{type}";
 
+        // 카드 초기화, 뒷면
         Card card = go.GetComponent<Card>();
         card.Initialize(month, type, sprite, feature);
-        card.Flip(false); // 뒷면으로 시작
+        card.FlipInstant(false);
 
         _cards.Add(card);
     }
@@ -104,6 +105,9 @@ public class Deck : MonoBehaviour
 
             // 스왑
             (_cards[k], _cards[n]) = (_cards[n], _cards[k]);
+
+            // 하이어라키 순서 변경
+            _cards[n].transform.SetSiblingIndex(k);
         }
     }
 }

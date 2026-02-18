@@ -1,25 +1,20 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 
 public class Card : MonoBehaviour
 {
     [Header("카드 정의")]
-    private CardMonth _month;
-    private CardType _type;
-    private SpecialFeature _feature;
+    public CardMonth Month { get; private set; }
+    public CardType Type { get; private set; }
+    public SpecialFeature Feature { get; private set; }
 
-    [Header("스프라이트")]
-    public Sprite frontImage;      // 앞면 이미지
-    public Sprite backImage;       // 뒷면 이미지
-    private SpriteRenderer _spriteRenderer;
+    [Header("UI")]
+    public Image cardImage;         // 뒷면 이미지
+    public Sprite frontSprite;      // 앞면 이미지
 
     // 앞/뒷면 여부
     private bool _isFront = true;
-
-    private void Awake()
-    {
-        _spriteRenderer = GetComponent<SpriteRenderer>();
-    }
 
     /** 초기화 함수 **/
     public void Initialize(
@@ -29,24 +24,50 @@ public class Card : MonoBehaviour
         SpecialFeature feature = SpecialFeature.None
     )
     {
-        _month = month;
-        _type = type;
-        _feature = feature;
-        frontImage = sprite;
+        Month = month;
+        Type = type;
+        Feature = feature;
+        frontSprite = sprite;
 
-        _spriteRenderer.sprite = frontImage;
+        cardImage.sprite = frontSprite;
+        cardImage.color = Color.white;
     }
 
-    /** 카드 뒤집기 **/
+    /** 카드 뒤집기(초기화 용) **/
+    public void FlipInstant(bool showFront)
+    {
+        _isFront = showFront;
+        UpdateVisual();
+        transform.localScale = Vector3.one;
+    }
+
+    /** 카드 뒤집기(플레이 용) **/
     public void Flip(bool showFront)
     {
+        // 앞면 -> 앞면, 뒷면 -> 뒷면 필터링
+        if (_isFront == showFront) return;
         _isFront = showFront;
 
         // 0.2초동안 Y축으로 90도 회전 -> 이미지 교체 -> 원상복구
         transform.DOScaleX(0, 0.2f).OnComplete(() =>
         {
-            _spriteRenderer.sprite = _isFront ? frontImage : backImage;
+            UpdateVisual();
             transform.DOScaleX(1, 0.2f);
         });
+    }
+
+    /** 카드의 앞/뒷면을 그려주는 함수 **/
+    private void UpdateVisual()
+    {
+        if (_isFront)
+        {
+            cardImage.sprite = frontSprite;
+            cardImage.color = Color.white;
+        }
+        else
+        {
+            cardImage.sprite = null;
+            cardImage.color = new Color(0.8f, 0.2f, 0.2f);
+        }
     }
 }
