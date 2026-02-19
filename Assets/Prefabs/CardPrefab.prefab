@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.75, y: 0.63, z: 1}
+  m_LocalScale: {x: 0.55, y: 0.55, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -152,4 +152,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Card
   frontSprite: {fileID: 0}
-  backSprite: {fileID: -4571828015118065507, guid: c8d61aea3da1bf1408834696b573ad57, type: 3}
+  backSprite: {fileID: -4571828015118065507, guid: 2f05d7045842c0f4c97174d388804345, type: 3}
