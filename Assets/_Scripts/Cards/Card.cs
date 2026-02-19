@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using DG.Tweening;
 
 public class Card : MonoBehaviour
@@ -10,11 +9,21 @@ public class Card : MonoBehaviour
     public SpecialFeature Feature { get; private set; }
 
     [Header("UI")]
-    public Image cardImage;         // 뒷면 이미지
-    public Sprite frontSprite;      // 앞면 이미지
+    public Sprite frontSprite;              // 앞면 이미지
+    public Sprite backSprite;              // 뒷면 이미지
+    private SpriteRenderer _spriteRenderer; // 스프라이트 렌더러 컴포넌트
 
     // 앞/뒷면 여부
     private bool _isFront = true;
+
+    // 오리지널 스케일
+    private Vector3 _originalScale;
+
+    private void Awake() 
+    { 
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _originalScale = transform.localScale;
+    }
 
     /** 초기화 함수 **/
     public void Initialize(
@@ -28,9 +37,6 @@ public class Card : MonoBehaviour
         Type = type;
         Feature = feature;
         frontSprite = sprite;
-
-        cardImage.sprite = frontSprite;
-        cardImage.color = Color.white;
     }
 
     /** 카드 뒤집기(초기화 용) **/
@@ -38,7 +44,7 @@ public class Card : MonoBehaviour
     {
         _isFront = showFront;
         UpdateVisual();
-        transform.localScale = Vector3.one;
+        transform.localScale = _originalScale;
     }
 
     /** 카드 뒤집기(플레이 용) **/
@@ -52,7 +58,7 @@ public class Card : MonoBehaviour
         transform.DOScaleX(0, 0.2f).OnComplete(() =>
         {
             UpdateVisual();
-            transform.DOScaleX(1, 0.2f);
+            transform.DOScaleX(_originalScale.x, 0.2f);
         });
     }
 
@@ -61,13 +67,13 @@ public class Card : MonoBehaviour
     {
         if (_isFront)
         {
-            cardImage.sprite = frontSprite;
-            cardImage.color = Color.white;
+            _spriteRenderer.sprite = frontSprite;
+            _spriteRenderer.color = Color.white;
         }
         else
         {
-            cardImage.sprite = null;
-            cardImage.color = new Color(0.8f, 0.2f, 0.2f);
+            _spriteRenderer.sprite = backSprite;
+            _spriteRenderer.color = new Color(0.8f, 0.2f, 0.2f);
         }
     }
 }

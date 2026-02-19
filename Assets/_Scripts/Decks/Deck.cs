@@ -11,6 +11,9 @@ public class Deck : MonoBehaviour
     // 덱
     private List<Card> _cards = new List<Card>();
 
+    // 덱 카운트
+    public int Count { get => _cards.Count; }
+
     void Start()
     {
         GenerateDeck();
@@ -29,19 +32,15 @@ public class Deck : MonoBehaviour
             string[] parts = sprite.name.Split('_');
             
             // 에러 처리
-            if (parts.Length < 2)
-            {
-                Debug.LogWarning($"[Deck] 잘못된 파일명 감지: {sprite.name}");
-                continue;
-            }
+            if (parts.Length < 2) continue;
 
             // 월(Month) 파싱 (1 -> Jan)
-            int monthInt = int.Parse(parts[0]);
+            if (!int.TryParse(parts[0], out int monthInt)) continue;
             CardMonth month = (CardMonth)monthInt;
 
             // 타입(Type) 파싱 (Gwang -> CardType.Gwang)
             string typeStr = parts[1];
-            CardType type = (CardType)Enum.Parse(typeof(CardType), typeStr);
+            if (!Enum.TryParse(typeStr, out CardType type)) continue;
 
             // 특수 타입 판별
             SpecialFeature feature = DetermineFeature(month, type);
@@ -109,5 +108,19 @@ public class Deck : MonoBehaviour
             // 하이어라키 순서 변경
             _cards[n].transform.SetSiblingIndex(k);
         }
+    }
+
+    /** 드로잉 함수 **/
+    public Card Draw()
+    {
+        if (_cards.Count <= 0)
+        {
+            Debug.LogWarning("[Deck] 덱에 남은 카드가 없습니다.");
+            return null;
+        }
+
+        Card cardToDraw = _cards[0];
+        _cards.RemoveAt(0);
+        return cardToDraw;
     }
 }
