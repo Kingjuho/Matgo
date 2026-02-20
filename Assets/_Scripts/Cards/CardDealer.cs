@@ -37,15 +37,8 @@ public class CardDealer : MonoBehaviour
     // 배분 영역 열거형
     private enum Target { AI, Player, Table }
 
-    private void Start()
-    {
-        GameStart();
-    }
-
-    public void GameStart() { StartCoroutine(DistributeCardsSequence()); }
-
     /** 전체 패 분배 코루틴 **/
-    IEnumerator DistributeCardsSequence()
+    public IEnumerator DistributeCardsSequence()
     {
         yield return new WaitForSeconds(0.5f); // 덱 생성 및 세팅 대기시간
 

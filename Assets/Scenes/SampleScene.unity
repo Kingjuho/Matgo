@@ -1033,6 +1033,7 @@ GameObject:
   - component: {fileID: 1036717125}
   - component: {fileID: 1036717126}
   - component: {fileID: 1036717127}
+  - component: {fileID: 1036717128}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1124,6 +1125,20 @@ MonoBehaviour:
   stackOffset: {x: 0.1, y: -0.1}
   dealSpeed: 0.2
   dealInterval: 0.1
+--- !u!114 &1036717128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036717124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 326b3fa889365c84a929ca0b50bd2687, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  _cardDealer: {fileID: 1036717127}
+  currentState: 0
 --- !u!1 &1138269562
 GameObject:
   m_ObjectHideFlags: 0
