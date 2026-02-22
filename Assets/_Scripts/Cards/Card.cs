@@ -137,6 +137,8 @@ public class Card : MonoBehaviour
     /** 마우스가 카드 안으로 들어오는 것을 감지 **/
     private void OnMouseEnter()
     {
+        // 플레이어 턴 검증
+        if (GameManager.Instance.currentState != GameState.PlayerTurn) return;
         // 플레이어 손패에 있는 카드인지 검증
         if (!GameManager.Instance.humanPlayer.handCards.Contains(this)) return;
 
