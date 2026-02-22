@@ -112,7 +112,8 @@ public class CardDealer : MonoBehaviour
             }
 
             // 렌더링 순서 세팅 (카드가 겹칠 때 뒤에 온 놈이 위로 보이게)
-            card.GetComponent<SpriteRenderer>().sortingOrder = orderInLayer;
+            UnityEngine.Rendering.SortingGroup sg = card.GetComponent<UnityEngine.Rendering.SortingGroup>();
+            if (sg != null) sg.sortingOrder = orderInLayer;
 
             // 애니메이션 재생
             card.transform.DOMove(targetPos, dealSpeed).SetEase(Ease.OutCubic);

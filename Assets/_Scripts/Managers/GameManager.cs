@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     // 컴포넌트
-    [SerializeField] CardDealer _cardDealer;
+    public CardDealer CardDealer;
 
     [Header("플레이어 객체")]
     public HumanPlayer humanPlayer;
@@ -68,7 +68,7 @@ public class GameManager : MonoBehaviour
     /** 초기화 루틴 **/
     private IEnumerator InitRoutine()
     {
-        yield return StartCoroutine(_cardDealer.DistributeCardsSequence());
+        yield return StartCoroutine(CardDealer.DistributeCardsSequence());
 
         ChangeState(GameState.CheckPresident);
     }

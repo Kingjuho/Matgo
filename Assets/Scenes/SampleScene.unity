@@ -1170,7 +1170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 326b3fa889365c84a929ca0b50bd2687, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  _cardDealer: {fileID: 1036717127}
+  CardDealer: {fileID: 1036717127}
   humanPlayer: {fileID: 1276482998}
   computerPlayer: {fileID: 1577269003}
   currentState: 0
