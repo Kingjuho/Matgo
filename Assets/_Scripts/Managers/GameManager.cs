@@ -70,13 +70,18 @@ public class GameManager : MonoBehaviour
     {
         yield return StartCoroutine(CardDealer.DistributeCardsSequence());
 
-        ChangeState(GameState.CheckPresident);
+        // TODO: 총통 체크 로직 구현 시 주석 처리한 코드로 변경
+        // ChangeState(GameState.CheckPresident);
+        ChangeState(GameState.PlayerTurn);
     }
 
     /** 플레이어 턴 루틴 **/
     private IEnumerator PlayerTurnRoutine()
     {
-        Debug.Log("플레이어의 턴! 카드를 선택하세요.");
+        Debug.Log("PlayerTurn 시작");
+
+        // 소지패 힌트 표시
+        humanPlayer.EvaluateHints();
 
         // TODO: 플레이어가 카드를 클릭하거나 QWER 키를 누를 때까지 무한 대기
         yield return null;

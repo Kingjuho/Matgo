@@ -17,6 +17,13 @@ public class Card : MonoBehaviour
     public SpriteRenderer topArrowIcon;     // 상단 힌트
     public SpriteRenderer bottomRightIcon;  // 우하단 힌트(굳, 흔들기, 폭탄)
 
+    [Header("힌트 스프라이트 에셋")]
+    public Sprite arrowBlue;
+    public Sprite arrowGray;
+    public Sprite iconGood;
+    public Sprite iconShake;
+    public Sprite iconBomb;
+
     // 앞/뒷면 여부
     private bool _isFront = true;
 
@@ -91,23 +98,23 @@ public class Card : MonoBehaviour
         switch (type)
         {
             case HintType.Basic:
-                topArrowIcon.sprite = null; // TODO: 파란색 화살표 스프라이트 넣기
+                topArrowIcon.sprite = arrowBlue;
                 topArrowIcon.gameObject.SetActive(true);
                 break;
             case HintType.Good1:
-                topArrowIcon.sprite = null; // TODO: 회색 화살표 스프라이트 넣기
+                topArrowIcon.sprite = arrowGray;
                 topArrowIcon.gameObject.SetActive(true);
                 break;
             case HintType.Good2:
-                bottomRightIcon.sprite = null; // TODO: [굳] 스프라이트
+                bottomRightIcon.sprite = iconGood;
                 bottomRightIcon.gameObject.SetActive(true);
                 break;
             case HintType.Shake:
-                bottomRightIcon.sprite = null; // TODO: [종] 스프라이트
+                bottomRightIcon.sprite = iconShake;
                 bottomRightIcon.gameObject.SetActive(true);
                 break;
             case HintType.Bomb:
-                bottomRightIcon.sprite = null; // TODO: [폭탄] 스프라이트
+                bottomRightIcon.sprite = iconBomb;
                 bottomRightIcon.gameObject.SetActive(true);
                 break;
         }
