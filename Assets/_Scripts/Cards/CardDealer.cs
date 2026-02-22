@@ -87,6 +87,8 @@ public class CardDealer : MonoBehaviour
                     isFaceUp = false;
                     orderInLayer = _aiCount;
                     _aiCount++;
+
+                    GameManager.Instance.computerPlayer.handCards.Add(card);
                     break;
 
                 case Target.Player:
@@ -97,6 +99,8 @@ public class CardDealer : MonoBehaviour
                     isFaceUp = true;
                     orderInLayer = _playerCount;
                     _playerCount++;
+
+                    GameManager.Instance.humanPlayer.handCards.Add(card);
                     break;
 
                 case Target.Table:
@@ -129,16 +133,15 @@ public class CardDealer : MonoBehaviour
             _uniqueMonthCount++;
         }
 
+        // 이 카드가 해당 월의 몇 번째 카드인지 확인
         List<Card> monthGroup = _tableCards[month];
-        int stackIndex = monthGroup.Count; // 이 카드가 해당 월의 몇 번째 카드인가?
+        int stackIndex = monthGroup.Count;
 
         // 2. 이 월(Month)이 몇 번째 슬롯인지 확인
         int slotIndex = GetMonthSlotIndex(month);
 
-        // [핵심 수정] 수학적 격자 계산 대신, 미리 지정해둔 앵커의 위치를 바로 가져옴!
-        // (만약 에러로 12구역을 초과하면 임시로 0번으로 보냄)
+        // 미리 지정해둔 앵커의 위치를 바로 가져옴(에러 발생 시 0)
         if (slotIndex >= tableAnchors.Length) slotIndex = 0;
-
         Vector3 basePos = tableAnchors[slotIndex].position;
 
         // 3. 겹침 오프셋(Stack Offset) 추가

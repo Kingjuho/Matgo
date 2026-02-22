@@ -8,11 +8,14 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     // 컴포넌트
-    [SerializeField] CardDealer _cardDealer;    
-    
+    [SerializeField] CardDealer _cardDealer;
+
+    [Header("플레이어 객체")]
+    public HumanPlayer humanPlayer;
+    public ComputerPlayer computerPlayer;
+
     public GameState currentState;          // 현재 상태
     private bool _isPlayerTurn = true;      // 플레이어 턴 여부
-
 
     private void Awake()
     {
@@ -76,7 +79,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("플레이어의 턴! 카드를 선택하세요.");
 
         // TODO: 플레이어가 카드를 클릭하거나 QWER 키를 누를 때까지 무한 대기
-        // (입력이 들어오면 ChangeState(GameState.PlayHandCard) 호출)
         yield return null;
     }
 
