@@ -43,6 +43,7 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(InitRoutine());
                 break;
             case GameState.CheckPresident:
+                ChangeState(GameState.PlayerTurn);
                 break;
             case GameState.PlayerTurn:
                 StartCoroutine(PlayerTurnRoutine());
@@ -68,11 +69,17 @@ public class GameManager : MonoBehaviour
     /** 초기화 루틴 **/
     private IEnumerator InitRoutine()
     {
+        // 패 분배
         yield return StartCoroutine(CardDealer.DistributeCardsSequence());
 
-        // TODO: 총통 체크 로직 구현 시 주석 처리한 코드로 변경
-        // ChangeState(GameState.CheckPresident);
-        ChangeState(GameState.PlayerTurn);
+        // 손패 정렬
+        humanPlayer.SortHandCards();
+        CardDealer.RearrangeHand(humanPlayer, CardDealer.playerHandAnchors);
+
+        // 애니메이션 재생 동안 대기
+        yield return new WaitForSeconds(0.4f);
+
+        ChangeState(GameState.CheckPresident);
     }
 
     /** 플레이어 턴 루틴 **/

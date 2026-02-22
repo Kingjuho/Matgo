@@ -160,4 +160,26 @@ public class CardDealer : MonoBehaviour
 
         return finalPos;
     }
+
+    /** 특정 플레이어의 손패 정렬 **/
+    public void RearrangeHand(Player player, Transform[] anchors)
+    {
+        for (int i = 0; i < player.handCards.Count; i++)
+        {
+            Card card = player.handCards[i];
+
+            // 안전 장치: 앵커 개수를 넘어가면 마지막 앵커에 겹침
+            int anchorIndex = Mathf.Min(i, anchors.Length - 1);
+            Vector3 targetPos = anchors[anchorIndex].position;
+            Quaternion targetRot = anchors[anchorIndex].rotation;
+
+            // 렌더링 순서 0부터 세팅
+            UnityEngine.Rendering.SortingGroup sg = card.GetComponent<UnityEngine.Rendering.SortingGroup>();
+            if (sg != null) sg.sortingOrder = i;
+
+            // 0.2초 동안 스르륵 제자리로 찾아가게 연출
+            card.transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutCubic);
+            card.transform.DORotateQuaternion(targetRot, 0.2f).SetEase(Ease.OutCubic);
+        }
+    }
 }

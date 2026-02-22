@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public abstract class Player : MonoBehaviour
@@ -35,5 +36,11 @@ public abstract class Player : MonoBehaviour
     {
         if (handCards.Contains(card))
             handCards.Remove(card);
+    }
+
+    /** 패 정렬 **/
+    public void SortHandCards()
+    {
+        handCards = handCards.OrderBy(card => (int)card.Month).ToList();
     }
 }
