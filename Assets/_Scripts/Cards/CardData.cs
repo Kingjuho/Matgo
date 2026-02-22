@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-/** 1~12월 열거형 **/
+﻿/** 1~12월 열거형 **/
 public enum CardMonth
 {
     Jan = 1, // 송학
@@ -36,4 +34,15 @@ public enum SpecialFeature
     ChungDan,   // 청단
     ChoDan,     // 초단
     Bee         // 비
+}
+
+/** 카드 힌트 열거형 **/
+public enum HintType
+{
+    None,   // 없음
+    Basic,  // 기본 (소지패 1~2장, 바닥패 1장, 이미 먹힌 패 0장)
+    Good1,  // 굳은자 1 (소지패 1장, 바닥패 1장, 이미 먹힌 패 2장)
+    Good2,  // 굳은자 2 (소지패 2장, 바닥패 0장, 이미 먹힌 패 2장)
+    Shake,  // 흔들기
+    Bomb    // 폭탄
 }

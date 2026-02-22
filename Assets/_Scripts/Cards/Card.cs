@@ -10,8 +10,12 @@ public class Card : MonoBehaviour
 
     [Header("UI")]
     public Sprite frontSprite;              // 앞면 이미지
-    public Sprite backSprite;              // 뒷면 이미지
+    public Sprite backSprite;               // 뒷면 이미지
     private SpriteRenderer _spriteRenderer; // 스프라이트 렌더러 컴포넌트
+
+    [Header("힌트 UI")]
+    public SpriteRenderer topArrowIcon;     // 상단 힌트
+    public SpriteRenderer bottomRightIcon;  // 우하단 힌트(굳, 흔들기, 폭탄)
 
     // 앞/뒷면 여부
     private bool _isFront = true;
@@ -74,6 +78,38 @@ public class Card : MonoBehaviour
         {
             _spriteRenderer.sprite = backSprite;
             _spriteRenderer.color = new Color(0.8f, 0.2f, 0.2f);
+        }
+    }
+
+    /** 카드 힌트 표시 함수 **/
+    public void ShowHint(HintType type)
+    {
+        // 초기화
+        topArrowIcon.gameObject.SetActive(false);
+        bottomRightIcon.gameObject.SetActive(false);
+
+        switch (type)
+        {
+            case HintType.Basic:
+                topArrowIcon.sprite = null; // TODO: 파란색 화살표 스프라이트 넣기
+                topArrowIcon.gameObject.SetActive(true);
+                break;
+            case HintType.Good1:
+                topArrowIcon.sprite = null; // TODO: 회색 화살표 스프라이트 넣기
+                topArrowIcon.gameObject.SetActive(true);
+                break;
+            case HintType.Good2:
+                bottomRightIcon.sprite = null; // TODO: [굳] 스프라이트
+                bottomRightIcon.gameObject.SetActive(true);
+                break;
+            case HintType.Shake:
+                bottomRightIcon.sprite = null; // TODO: [종] 스프라이트
+                bottomRightIcon.gameObject.SetActive(true);
+                break;
+            case HintType.Bomb:
+                bottomRightIcon.sprite = null; // TODO: [폭탄] 스프라이트
+                bottomRightIcon.gameObject.SetActive(true);
+                break;
         }
     }
 }
