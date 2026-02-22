@@ -24,8 +24,11 @@ public class Card : MonoBehaviour
     public Sprite iconShake;
     public Sprite iconBomb;
 
-    // 앞/뒷면 여부
-    private bool _isFront = true;
+    [HideInInspector]
+    public Vector3 basePosition;        // 마우스 이벤트에 사용하기 위한 좌표값
+    // bool타입 변수
+    private bool _isFront = true;       // 앞/뒷면 여부
+    private bool _isHovered = false;    // 마우스 호버링 여부
 
     // 오리지널 스케일
     private Vector3 _originalScale;
@@ -124,13 +127,37 @@ public class Card : MonoBehaviour
     private void OnMouseDown()
     {
         // 플레이어 턴 검증
-        if (GameManager.Instance.currentState != GameState.PlayerTurn)
-            return;
-
+        if (GameManager.Instance.currentState != GameState.PlayerTurn) return;
         // 플레이어 손패에 있는 카드인지 검증
-        if (!GameManager.Instance.humanPlayer.handCards.Contains(this))
-            return;
+        if (!GameManager.Instance.humanPlayer.handCards.Contains(this)) return;
 
         GameManager.Instance.humanPlayer.SelectCard(this);
+    }
+
+    /** 마우스가 카드 안으로 들어오는 것을 감지 **/
+    private void OnMouseEnter()
+    {
+        // 플레이어 손패에 있는 카드인지 검증
+        if (!GameManager.Instance.humanPlayer.handCards.Contains(this)) return;
+
+        _isHovered = true;
+
+        // 카드를 위로 살짝 들어올림
+        transform.DOKill(); // 버그 방지용
+        transform.DOMoveY(basePosition.y + 0.1f, 0.1f).SetEase(Ease.OutQuad);
+    }
+
+    /** 마우스가 카드 밖으로 나가는 것을 감지 **/
+    private void OnMouseExit()
+    {
+        if (!_isHovered) return;
+        _isHovered = false;
+
+        // 카드를 이미 냈다면 돌아갈 필요 없음
+        if (!GameManager.Instance.humanPlayer.handCards.Contains(this)) return;
+
+        // 원위치
+        transform.DOKill(); // 버그 방지용
+        transform.DOMoveY(basePosition.y, 0.1f).SetEase(Ease.OutQuad);
     }
 }

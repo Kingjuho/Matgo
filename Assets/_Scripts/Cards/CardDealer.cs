@@ -185,6 +185,9 @@ public class CardDealer : MonoBehaviour
             Vector3 targetPos = anchors[anchorIndex].position;
             Quaternion targetRot = anchors[anchorIndex].rotation;
 
+            // 해당 카드가 이동할 월드 좌표 저장(마우스 이벤트 용)
+            card.basePosition = targetPos;
+
             // 렌더링 순서 0부터 세팅
             UnityEngine.Rendering.SortingGroup sg = card.GetComponent<UnityEngine.Rendering.SortingGroup>();
             if (sg != null) sg.sortingOrder = i;
