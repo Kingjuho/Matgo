@@ -340,7 +340,7 @@ MonoBehaviour:
   topArrowIcon: {fileID: 2390491045437316558}
   bottomRightIcon: {fileID: 3650342115276510272}
   arrowBlue: {fileID: 3813978932674886025, guid: 8f2dbd31825c8834184adbeac9bedc51, type: 3}
-  arrowGray: {fileID: 3813978932674886025, guid: 8f2dbd31825c8834184adbeac9bedc51, type: 3}
-  iconGood: {fileID: 3813978932674886025, guid: 8f2dbd31825c8834184adbeac9bedc51, type: 3}
-  iconShake: {fileID: 3813978932674886025, guid: 8f2dbd31825c8834184adbeac9bedc51, type: 3}
-  iconBomb: {fileID: 3813978932674886025, guid: 8f2dbd31825c8834184adbeac9bedc51, type: 3}
+  arrowGray: {fileID: 6741970776633786168, guid: 561ddc711820aa14d9c3b0658c16756b, type: 3}
+  iconGood: {fileID: -6663044916168423905, guid: 71f20c84336c2e045b0230b531b452fb, type: 3}
+  iconShake: {fileID: 3616512531535755360, guid: aac757b892ff2d04fbc305ff96f737b5, type: 3}
+  iconBomb: {fileID: -2613247888821195678, guid: 1f5215ce9ccd5f547aa2393f24928b0c, type: 3}
