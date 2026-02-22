@@ -1,6 +1,5 @@
 ﻿using DG.Tweening;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -15,8 +14,12 @@ public class GameManager : MonoBehaviour
     public HumanPlayer humanPlayer;
     public ComputerPlayer computerPlayer;
 
-    public GameState currentState;          // 현재 상태
-    private bool _isPlayerTurn = true;      // 플레이어 턴 여부
+    [Header("해당 턴 판정용 데이터")]
+    public Card lastPlayerCard;     // 이번 턴에 손에서 낸 카드
+    public Card lastDeckCard;       // 이번 턴에 덱에서 깐 카드
+
+    [Header("현재 상태")]
+    public GameState currentState;
 
     private void Awake()
     {
@@ -56,6 +59,7 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(PlayHandCardRoutine());
                 break;
             case GameState.FlipDeckCard:
+                StartCoroutine(FlipDeckCardRoutine());
                 break;
             case GameState.ResolveMatch:
                 break;
@@ -107,6 +111,9 @@ public class GameManager : MonoBehaviour
         Card playerCard = humanPlayer.selectedCard;
         humanPlayer.handCards.Remove(playerCard);
 
+        // 해당 카드 데이터 저장
+        lastPlayerCard = playerCard;
+
         // 손패가 빠졌으니 재정렬
         CardDealer.RearrangeHand(humanPlayer, CardDealer.playerHandAnchors);
 
@@ -139,11 +146,70 @@ public class GameManager : MonoBehaviour
         ChangeState(GameState.FlipDeckCard);
     }
 
-    ///** 공통: 덱에서 화투를 1장 뽑은 후 처리 루틴 **/
-    //private IEnumerator FlipDeckCardRoutine()
-    //{
-    //    ChangeState(GameState.ResolveMatch);
-    //}
+    /** 공통: 덱에서 화투를 1장 뽑은 후 처리 루틴 **/
+    private IEnumerator FlipDeckCardRoutine()
+    {
+        Debug.Log("FlipDeckCard 시작");
+
+        // 덱에서 1장 드로우
+        Card deckCard = CardDealer.deck.Draw();
+        // 덱이 텅 비었다면 바로 판정 시작
+        if (deckCard == null)
+        {
+            ChangeState(GameState.ResolveMatch);
+            yield break;
+        }
+
+        // 해당 카드 데이터 저장
+        lastDeckCard = deckCard;
+
+        // 잠시 HandCards로 설정
+        UnityEngine.Rendering.SortingGroup sg = deckCard.GetComponent<UnityEngine.Rendering.SortingGroup>();
+        if (sg != null)
+        {
+            sg.sortingLayerName = "HandCards";
+            sg.sortingOrder = 100;
+        }
+
+        // 카드의 출발 위치를 덱 앵커로 세팅
+        deckCard.transform.position = CardDealer.deckAnchor.position;
+        deckCard.transform.rotation = CardDealer.deckAnchor.rotation;
+
+        // 카드를 화면 중앙으로 살짝 띄우면서 앞면으로 뒤집음
+        Vector3 flipPos = CardDealer.deckAnchor.position + new Vector3(1.5f, 0.5f, 0);
+        deckCard.transform.DOMove(flipPos, 0.3f).SetEase(Ease.OutBack);
+        deckCard.Flip(true);
+
+        // 0.5초 대기(무슨 패인지 확인)
+        yield return new WaitForSeconds(0.5f);
+
+        // 이동할 바닥패 위치 탐색
+        int orderInLayer;
+        Vector3 targetPos = CardDealer.CalculateTablePosition(deckCard, out orderInLayer);
+
+        // 바닥패로 변경
+        if (sg != null)
+        {
+            sg.sortingLayerName = "TableCards";
+            sg.sortingOrder = orderInLayer;
+        }
+
+        // 바닥으로 내리 꽂는 애니메이션
+        Vector3 baseScale = deckCard.transform.localScale;
+        deckCard.transform.DOScale(baseScale * 1.2f, 0.1f).OnComplete(() =>
+        {
+            deckCard.transform.DOScale(baseScale, 0.2f);
+        });
+
+        deckCard.transform.DOMove(targetPos, 0.3f).SetEase(Ease.OutQuad);
+        deckCard.transform.DORotateQuaternion(Quaternion.identity, 0.3f);
+
+        // 카드가 바닥에 완전히 꽂힐 때까지 대기
+        yield return new WaitForSeconds(0.5f);
+
+
+        ChangeState(GameState.ResolveMatch);
+    }
 
     ///** 공통: 판정 루틴 (쪽, 따닥, 뻑 등) **/
     //private IEnumerator ResolveMatchRoutine()
