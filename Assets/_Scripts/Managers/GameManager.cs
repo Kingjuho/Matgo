@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -52,6 +53,7 @@ public class GameManager : MonoBehaviour
                 // TODO: AI 로직 개발 후 추가
                 break;
             case GameState.PlayHandCard:
+                StartCoroutine(PlayHandCardRoutine());
                 break;
             case GameState.FlipDeckCard:
                 break;
@@ -93,15 +95,49 @@ public class GameManager : MonoBehaviour
         // 카드 선택까지 대기
         yield return new WaitUntil(() => humanPlayer.hasPlayed);
 
-        Debug.Log($"턴 종료: {humanPlayer.selectedCard.Month}월 카드가 제출 대기 중입니다.");
         ChangeState(GameState.PlayHandCard);
     }
 
     ///** 공통: 손패 처리 루틴 **/
-    //private IEnumerator PlayHandCardRoutine()
-    //{
-    //    ChangeState(GameState.FlipDeckCard);
-    //}
+    private IEnumerator PlayHandCardRoutine()
+    {
+        Debug.Log("PlayHandCard 시작");
+
+        // 유저가 선택한 카드를 손패에서 제거
+        Card playerCard = humanPlayer.selectedCard;
+        humanPlayer.handCards.Remove(playerCard);
+
+        // 손패가 빠졌으니 재정렬
+        CardDealer.RearrangeHand(humanPlayer, CardDealer.playerHandAnchors);
+
+        // 레이어 확인
+        int orderInLayer;
+        Vector3 targetPos = CardDealer.CalculateTablePosition(playerCard, out orderInLayer);
+
+        // 렌더링 순서 적용(바닥에 깔린 애들보다 위로 오게)
+        UnityEngine.Rendering.SortingGroup sg = playerCard.GetComponent<UnityEngine.Rendering.SortingGroup>();
+        if (sg != null)
+        {
+            sg.sortingLayerName = "TableCards";
+            sg.sortingOrder = orderInLayer;
+        }
+
+        // 애니메이션 재생
+        Vector3 baseScale = playerCard.transform.localScale;
+        playerCard.transform.DOScale(baseScale * 2.0f, 0.1f).OnComplete(() =>
+        {
+            playerCard.transform.DOScale(baseScale, 0.15f);
+        });
+
+        // 애니메이션 재생 (이동)
+        playerCard.transform.DOMove(targetPos, 0.15f).SetEase(Ease.OutQuad);
+        playerCard.transform.DORotateQuaternion(Quaternion.identity, 0.15f);
+
+        // 애니메이션 종료까지 대기
+        yield return new WaitForSeconds(0.5f);
+
+        ChangeState(GameState.FlipDeckCard);
+    }
 
     ///** 공통: 덱에서 화투를 1장 뽑은 후 처리 루틴 **/
     //private IEnumerator FlipDeckCardRoutine()

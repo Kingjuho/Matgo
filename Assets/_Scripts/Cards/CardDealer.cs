@@ -113,7 +113,19 @@ public class CardDealer : MonoBehaviour
 
             // 렌더링 순서 세팅 (카드가 겹칠 때 뒤에 온 놈이 위로 보이게)
             UnityEngine.Rendering.SortingGroup sg = card.GetComponent<UnityEngine.Rendering.SortingGroup>();
-            if (sg != null) sg.sortingOrder = orderInLayer;
+            if (sg != null)
+            {
+                if (target == Target.Table)
+                {
+                    sg.sortingLayerName = "TableCards";
+                    sg.sortingOrder = orderInLayer;
+                }
+                else
+                {
+                    sg.sortingLayerName = "HandCards";
+                    sg.sortingOrder = orderInLayer;
+                }
+            }
 
             // 애니메이션 재생
             card.transform.DOMove(targetPos, dealSpeed).SetEase(Ease.OutCubic);
@@ -125,7 +137,7 @@ public class CardDealer : MonoBehaviour
     }
 
     /** 바닥패 위치 및 렌더링 순서 계산 함수 **/
-    private Vector3 CalculateTablePosition(Card card, out int sortingOrder)
+    public Vector3 CalculateTablePosition(Card card, out int sortingOrder)
     {
         CardMonth month = card.Month;
 
