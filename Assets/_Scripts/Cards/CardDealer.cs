@@ -30,9 +30,11 @@ public class CardDealer : MonoBehaviour
 
     // 바닥패 상태 관리
     private Dictionary<CardMonth, List<Card>> _tableCards = new Dictionary<CardMonth, List<Card>>();
+    public Dictionary<CardMonth, List<Card>> TableCards => _tableCards;
 
-    // 서로 다른 월의 개수
-    private int _uniqueMonthCount = 0;
+    // 특정 월의 패가 어느 바닥에 위치하는 지 관리
+    private Dictionary<CardMonth, int> _monthSlotMap = new Dictionary<CardMonth, int>();
+    private int _nextSlotIndex = 0;
 
     // 배분 영역 열거형
     private enum Target { AI, Player, Table }
@@ -130,7 +132,9 @@ public class CardDealer : MonoBehaviour
         if (!_tableCards.ContainsKey(month))
         {
             _tableCards[month] = new List<Card>();
-            _uniqueMonthCount++;
+
+            _monthSlotMap[month] = _nextSlotIndex;
+            _nextSlotIndex++;
         }
 
         // 이 카드가 해당 월의 몇 번째 카드인지 확인
@@ -138,7 +142,7 @@ public class CardDealer : MonoBehaviour
         int stackIndex = monthGroup.Count;
 
         // 2. 이 월(Month)이 몇 번째 슬롯인지 확인
-        int slotIndex = GetMonthSlotIndex(month);
+        int slotIndex = _monthSlotMap[month];
 
         // 미리 지정해둔 앵커의 위치를 바로 가져옴(에러 발생 시 0)
         if (slotIndex >= tableAnchors.Length) slotIndex = 0;
@@ -154,17 +158,5 @@ public class CardDealer : MonoBehaviour
         sortingOrder = (slotIndex * 10) + stackIndex;
 
         return finalPos;
-    }
-
-    /** 해당 월이 몇 번째 슬롯인지 찾아주는 헬퍼 함수 **/
-    private int GetMonthSlotIndex(CardMonth targetMonth)
-    {
-        int index = 0;
-        foreach (var month in _tableCards.Keys)
-        {
-            if (month == targetMonth) return index;
-            index++;
-        }
-        return 0; // 에러 대비
     }
 }
