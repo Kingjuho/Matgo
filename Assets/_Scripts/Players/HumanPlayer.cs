@@ -3,9 +3,31 @@ using UnityEngine;
 
 public class HumanPlayer : Player
 {
+    [Header("입력 상태")]
+    public Card selectedCard = null;    // 선택한 패
+    public bool hasPlayed = false;      // 해당 턴의 패 선택 여부
+
     private void Start()
     {
         playerName = "플레이어";
+    }
+
+    /** 턴 시작 시 초기화 **/
+    public void StartTurn()
+    {
+        selectedCard = null;
+        hasPlayed = false;
+        EvaluateHints();
+    }
+
+    /** 카드가 클릭되었을 때 호출되는 함수 **/
+    public void SelectCard(Card card)
+    {
+        selectedCard = card;
+        hasPlayed = true;
+
+        // 선택을 마쳤으니 힌트 삭제
+        foreach (var c in handCards) c.ShowHint(HintType.None);
     }
 
     /** 소지 패 힌트 활성화 함수 **/

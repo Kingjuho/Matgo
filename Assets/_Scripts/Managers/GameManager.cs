@@ -87,11 +87,14 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("PlayerTurn 시작");
 
-        // 소지패 힌트 표시
-        humanPlayer.EvaluateHints();
+        // 플레이어 초기화
+        humanPlayer.StartTurn();
 
-        // TODO: 플레이어가 카드를 클릭하거나 QWER 키를 누를 때까지 무한 대기
-        yield return null;
+        // 카드 선택까지 대기
+        yield return new WaitUntil(() => humanPlayer.hasPlayed);
+
+        Debug.Log($"턴 종료: {humanPlayer.selectedCard.Month}월 카드가 제출 대기 중입니다.");
+        ChangeState(GameState.PlayHandCard);
     }
 
     ///** 공통: 손패 처리 루틴 **/

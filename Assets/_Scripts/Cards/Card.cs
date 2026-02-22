@@ -119,4 +119,18 @@ public class Card : MonoBehaviour
                 break;
         }
     }
+
+    /** 마우스 클릭 감지 함수 **/
+    private void OnMouseDown()
+    {
+        // 플레이어 턴 검증
+        if (GameManager.Instance.currentState != GameState.PlayerTurn)
+            return;
+
+        // 플레이어 손패에 있는 카드인지 검증
+        if (!GameManager.Instance.humanPlayer.handCards.Contains(this))
+            return;
+
+        GameManager.Instance.humanPlayer.SelectCard(this);
+    }
 }
