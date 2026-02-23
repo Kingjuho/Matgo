@@ -44,4 +44,11 @@ public class AnimationManager : MonoBehaviour
         // 애니메이션 종료까지 대기
         yield return new WaitForSeconds(tableDropDuration + 0.1f);
     }
+
+    /** 카드를 목표 위치로 이동시키는 애니메이션 **/
+    public void MoveCard(Card card, Vector3 targetPos, Quaternion targetRot, float duration)
+    {
+        card.transform.DOMove(targetPos, duration).SetEase(Ease.OutCubic);
+        card.transform.DORotateQuaternion(targetRot, duration).SetEase(Ease.OutCubic);
+    }
 }

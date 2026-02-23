@@ -111,24 +111,14 @@ public class CardDealer : MonoBehaviour
                     break;
             }
 
-            // 렌더링 순서 세팅 (카드가 겹칠 때 뒤에 온 놈이 위로 보이게)
-            UnityEngine.Rendering.SortingGroup sg = card.GetComponent<UnityEngine.Rendering.SortingGroup>();
-            if (sg != null)
-            {
-                if (target == Target.Table)
-                {
-                    sg.sortingLayerName = "TableCards";
-                    sg.sortingOrder = orderInLayer;
-                }
-                else
-                {
-                    sg.sortingLayerName = "HandCards";
-                    sg.sortingOrder = orderInLayer;
-                }
-            }
+            // 렌더링 순서 세팅
+            if (target == Target.Table)
+                card.SetSortingOrder("TableCards", orderInLayer);
+            else
+                card.SetSortingOrder("HandCards", orderInLayer);
 
             // 애니메이션 재생
-            card.transform.DOMove(targetPos, dealSpeed).SetEase(Ease.OutCubic);
+            AnimationManager.Instance.MoveCard(card, targetPos, targetRot, dealSpeed);
 
             if (isFaceUp) card.Flip(true);
 
@@ -189,12 +179,10 @@ public class CardDealer : MonoBehaviour
             card.basePosition = targetPos;
 
             // 렌더링 순서 0부터 세팅
-            UnityEngine.Rendering.SortingGroup sg = card.GetComponent<UnityEngine.Rendering.SortingGroup>();
-            if (sg != null) sg.sortingOrder = i;
+            card.SetSortingOrder("HandCards", i);
 
-            // 0.2초 동안 스르륵 제자리로 찾아가게 연출
-            card.transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutCubic);
-            card.transform.DORotateQuaternion(targetRot, 0.2f).SetEase(Ease.OutCubic);
+            // 애니메이션 재생
+            AnimationManager.Instance.MoveCard(card, targetPos, targetRot, 0.2f);
         }
     }
 }
