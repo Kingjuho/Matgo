@@ -162,4 +162,15 @@ public class Card : MonoBehaviour
         transform.DOKill(); // 버그 방지용
         transform.DOMoveY(basePosition.y, 0.1f).SetEase(Ease.OutQuad);
     }
+
+    /** 카드 레이어 세팅 함수 **/
+    public void SetSortingOrder(string layerName, int order)
+    {
+        UnityEngine.Rendering.SortingGroup sg = GetComponent<UnityEngine.Rendering.SortingGroup>();
+        if (sg != null)
+        {
+            sg.sortingLayerName = layerName;
+            sg.sortingOrder = order;
+        }
+    }
 }

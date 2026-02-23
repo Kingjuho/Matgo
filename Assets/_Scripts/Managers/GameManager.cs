@@ -102,46 +102,24 @@ public class GameManager : MonoBehaviour
         ChangeState(GameState.PlayHandCard);
     }
 
-    ///** 공통: 손패 처리 루틴 **/
+    /** 공통: 손패 처리 루틴 **/
     private IEnumerator PlayHandCardRoutine()
     {
         Debug.Log("PlayHandCard 시작");
 
         // 유저가 선택한 카드를 손패에서 제거
-        Card playerCard = humanPlayer.selectedCard;
-        humanPlayer.handCards.Remove(playerCard);
+        lastPlayerCard = humanPlayer.selectedCard;
+        humanPlayer.handCards.Remove(lastPlayerCard);
 
-        // 해당 카드 데이터 저장
-        lastPlayerCard = playerCard;
-
-        // 손패가 빠졌으니 재정렬
+        // 손패 재정렬
         CardDealer.RearrangeHand(humanPlayer, CardDealer.playerHandAnchors);
 
-        // 레이어 확인
+        // 바닥패 목적지 탐색
         int orderInLayer;
-        Vector3 targetPos = CardDealer.CalculateTablePosition(playerCard, out orderInLayer);
-
-        // 렌더링 순서 적용(바닥에 깔린 애들보다 위로 오게)
-        UnityEngine.Rendering.SortingGroup sg = playerCard.GetComponent<UnityEngine.Rendering.SortingGroup>();
-        if (sg != null)
-        {
-            sg.sortingLayerName = "TableCards";
-            sg.sortingOrder = orderInLayer;
-        }
+        Vector3 targetPos = CardDealer.CalculateTablePosition(lastPlayerCard, out orderInLayer);
 
         // 애니메이션 재생
-        Vector3 baseScale = playerCard.transform.localScale;
-        playerCard.transform.DOScale(baseScale * 2.0f, 0.1f).OnComplete(() =>
-        {
-            playerCard.transform.DOScale(baseScale, 0.15f);
-        });
-
-        // 애니메이션 재생 (이동)
-        playerCard.transform.DOMove(targetPos, 0.15f).SetEase(Ease.OutQuad);
-        playerCard.transform.DORotateQuaternion(Quaternion.identity, 0.15f);
-
-        // 애니메이션 종료까지 대기
-        yield return new WaitForSeconds(0.5f);
+        yield return StartCoroutine(AnimationManager.Instance.PlayDropCardToTable(lastPlayerCard, targetPos, orderInLayer, true));
 
         ChangeState(GameState.FlipDeckCard);
     }
@@ -152,60 +130,35 @@ public class GameManager : MonoBehaviour
         Debug.Log("FlipDeckCard 시작");
 
         // 덱에서 1장 드로우
-        Card deckCard = CardDealer.deck.Draw();
+        lastDeckCard = CardDealer.deck.Draw();
         // 덱이 텅 비었다면 바로 판정 시작
-        if (deckCard == null)
+        if (lastDeckCard == null)
         {
             ChangeState(GameState.ResolveMatch);
             yield break;
         }
 
-        // 해당 카드 데이터 저장
-        lastDeckCard = deckCard;
-
         // 잠시 HandCards로 설정
-        UnityEngine.Rendering.SortingGroup sg = deckCard.GetComponent<UnityEngine.Rendering.SortingGroup>();
-        if (sg != null)
-        {
-            sg.sortingLayerName = "HandCards";
-            sg.sortingOrder = 100;
-        }
+        lastDeckCard.SetSortingOrder("HandCards", 100);
 
         // 카드의 출발 위치를 덱 앵커로 세팅
-        deckCard.transform.position = CardDealer.deckAnchor.position;
-        deckCard.transform.rotation = CardDealer.deckAnchor.rotation;
+        lastDeckCard.transform.position = CardDealer.deckAnchor.position;
+        lastDeckCard.transform.rotation = CardDealer.deckAnchor.rotation;
 
         // 카드를 화면 중앙으로 살짝 띄우면서 앞면으로 뒤집음
         Vector3 flipPos = CardDealer.deckAnchor.position + new Vector3(1.5f, 0.5f, 0);
-        deckCard.transform.DOMove(flipPos, 0.3f).SetEase(Ease.OutBack);
-        deckCard.Flip(true);
+        lastDeckCard.transform.DOMove(flipPos, 0.3f).SetEase(Ease.OutBack);
+        lastDeckCard.Flip(true);
 
-        // 0.5초 대기(무슨 패인지 확인)
+        // 대기
         yield return new WaitForSeconds(0.5f);
 
-        // 이동할 바닥패 위치 탐색
+        // 바닥패 목적지 탐색
         int orderInLayer;
-        Vector3 targetPos = CardDealer.CalculateTablePosition(deckCard, out orderInLayer);
+        Vector3 targetPos = CardDealer.CalculateTablePosition(lastDeckCard, out orderInLayer);
 
-        // 바닥패로 변경
-        if (sg != null)
-        {
-            sg.sortingLayerName = "TableCards";
-            sg.sortingOrder = orderInLayer;
-        }
-
-        // 바닥으로 내리 꽂는 애니메이션
-        Vector3 baseScale = deckCard.transform.localScale;
-        deckCard.transform.DOScale(baseScale * 1.2f, 0.1f).OnComplete(() =>
-        {
-            deckCard.transform.DOScale(baseScale, 0.2f);
-        });
-
-        deckCard.transform.DOMove(targetPos, 0.3f).SetEase(Ease.OutQuad);
-        deckCard.transform.DORotateQuaternion(Quaternion.identity, 0.3f);
-
-        // 카드가 바닥에 완전히 꽂힐 때까지 대기
-        yield return new WaitForSeconds(0.5f);
+        // 애니메이션 재생
+        yield return StartCoroutine(AnimationManager.Instance.PlayDropCardToTable(lastDeckCard, targetPos, orderInLayer, false));
 
 
         ChangeState(GameState.ResolveMatch);
