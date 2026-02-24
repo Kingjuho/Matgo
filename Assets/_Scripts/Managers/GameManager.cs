@@ -20,6 +20,10 @@ public class GameManager : MonoBehaviour
     Card lastPlayerCard;     // 이번 턴에 손에서 낸 카드
     Card lastDeckCard;       // 이번 턴에 덱에서 깐 카드
 
+    // 선택 대기 상태
+    bool isChoosingCard = false;            // 선택 모드 활성화 여부
+    Card selectedChoiceCard = null;         // 최종 선택 카드
+
     [Header("현재 상태")]
     public GameState currentState;
 
@@ -202,6 +206,7 @@ public class GameManager : MonoBehaviour
         {
             // 낸 패 판정
             int playedCount = table[playedMonth].Count;
+            // 단순 획득
             if (playedCount == 2)
             {
                 // 바닥패에서 제거
@@ -211,9 +216,10 @@ public class GameManager : MonoBehaviour
                 // 해당 턴의 유저에게 삽입
                 foreach (Card c in cardsToCapture) currentPlayer.CaptureCard(c);
             }
+            // 1장 선택하여 획득
             else if (playedCount == 3)
             {
-                // TODO: 1장 선택
+                yield return StartCoroutine(HandleChoiceRoutine(playedMonth, lastPlayerCard));
             }
             else if (playedCount == 4)
             {
@@ -222,6 +228,7 @@ public class GameManager : MonoBehaviour
 
             // 덱에서 뽑은 패 판정
             int deckCount = table[deckMonth].Count;
+            // 단순 획득
             if (deckCount == 2)
             {
                 // 바닥패에서 제거
@@ -231,9 +238,10 @@ public class GameManager : MonoBehaviour
                 // 해당 턴의 유저에게 삽입
                 foreach (Card c in cardsToCapture) currentPlayer.CaptureCard(c);
             }
+            // 1장 선택하여 획득
             else if (deckCount == 3)
             {
-                // TODO: 1장 선택
+                yield return StartCoroutine(HandleChoiceRoutine(deckMonth, lastDeckCard));
             }
             else if (deckCount == 4)
             {
@@ -259,5 +267,46 @@ public class GameManager : MonoBehaviour
         // 반대쪽으로 턴 넘기기
         ChangeState((currentPlayer == humanPlayer) ? GameState.AITurn : GameState.PlayerTurn);
         yield return null;
+    }
+
+    /** 2장 중 1장 선택 코루틴 **/
+    private IEnumerator HandleChoiceRoutine(CardMonth month, Card triggerCard)
+    {
+        var table = CardDealer.TableCards;
+        List<Card> options = new List<Card>(table[month]);
+        options.Remove(triggerCard);    // 플레이어가 낸 카드는 무조건 먹음
+
+        // 상태 변경
+        isChoosingCard = true;
+        selectedChoiceCard = null;
+
+        // 컴퓨터 턴엔 UI 띄우지 않음
+        if (currentPlayer == computerPlayer)
+        {
+            yield return new WaitForSeconds(0.8f);
+            // TODO: AI가 자신에게 유리한 패를 고르도록
+            selectedChoiceCard = options[0];
+            isChoosingCard = false;
+        }
+        else
+        {
+            // UIManager 호출, 콜백
+            UIManager.Instance.ShowChoicePopup(options, (chosenCard) =>
+            {
+                selectedChoiceCard = chosenCard;
+                isChoosingCard = false;
+            });
+
+            // 선택될 때까지 대기
+            yield return new WaitUntil(() => !isChoosingCard);
+        }
+
+        // 낸 패 획득
+        currentPlayer.CaptureCard(triggerCard);
+        table[month].Remove(triggerCard);
+
+        // 선택한 패 획득
+        currentPlayer.CaptureCard(selectedChoiceCard);
+        table[month].Remove(selectedChoiceCard);
     }
 }
