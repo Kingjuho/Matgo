@@ -14,15 +14,12 @@ public class CardDealer : MonoBehaviour
     public Transform[] playerHandAnchors;   // 플레이어 패 (10장)
     public Transform[] tableAnchors;        // 테이블 (12칸)
 
-    [Header("간격 설정")]
-    public float handSpacing = 0.8f;                            // 손패 겹치는 간격 (X축)
-    public Vector2 tableSpacing = new Vector2(1.2f, 1.5f);      // 바닥패 간격 (X, Y축)
-    public int tableColumns = 5;                                // 줄당 장 수
-    public Vector2 stackOffset = new Vector2(0.15f, -0.2f);     // 바닥패의 같은 월 패가 겹칠 때 간격
+    // 간격 설정
+    Vector2 stackOffset = new Vector2(0.15f, -0.2f);     // 바닥패의 같은 월 패가 겹칠 때 간격
 
-    [Header("배분 속도")]
-    public float dealSpeed = 0.2f;
-    public float dealInterval = 0.1f;
+    // 배분 속도
+    float dealSpeed = 0.2f;
+    float dealInterval = 0.1f;
 
     // 현재 각 영역에 나눠준 카드 개수
     private int _aiCount = 0;
