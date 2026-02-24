@@ -138,4 +138,24 @@ public abstract class Player : MonoBehaviour
             AnimationManager.Instance.MoveCard(c, targetPos, Quaternion.identity, 0.3f);
         }
     }
+
+    /** 상대에게 피 1장을 뺏기는 함수 **/
+    public Card LosePee()
+    {
+        // 피, 쌍피만 검색해서 리스트에 삽입
+        List<Card> myPees = capturedCards.FindAll(c => c.Type == CardType.Pee || c.Type == CardType.Ssangpee);
+
+        // 뺏길 피가 없을 시 null 반환
+        if (myPees.Count == 0) return null;
+
+        // 일반 피를 우선 탐색, 없으면 쌍피
+        Card stolenCard = myPees.Find(c => c.Type == CardType.Pee);
+        if (stolenCard == null) stolenCard = myPees[0];
+
+        // 먹은 패 재정렬
+        capturedCards.Remove(stolenCard);
+        OrganizeCapturedCards();
+
+        return stolenCard;
+    }
 }

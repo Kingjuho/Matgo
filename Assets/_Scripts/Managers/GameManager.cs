@@ -60,6 +60,7 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.AITurn:
                 // TODO: AI 로직 개발 후 추가
+                ChangeState(GameState.PlayerTurn);
                 break;
             case GameState.PlayHandCard:
                 StartCoroutine(PlayHandCardRoutine());
@@ -84,6 +85,15 @@ public class GameManager : MonoBehaviour
     /** 초기화 루틴 **/
     private IEnumerator InitRoutine()
     {
+        //// 테스트
+        //for(int i = 0; i < 10; i++)
+        //{
+        //    Card card = CardDealer.deck.Draw();
+        //    card.FlipInstant(true);
+        //    computerPlayer.CaptureCard(card);
+        //}
+        //computerPlayer.OrganizeCapturedCards();
+
         // 패 분배
         yield return StartCoroutine(CardDealer.DistributeCardsSequence());
 
@@ -188,17 +198,36 @@ public class GameManager : MonoBehaviour
         {
             // 바닥패에 같은 월이 몇 개 있는 지 확인
             int totalCount = table[playedMonth].Count;
+            // 쪽
             if (totalCount == 2)
             {
-                // TODO: 쪽(획득, 1장 뺏기)
+                // 바닥패에서 제거
+                List<Card> cardsToCapture = new List<Card>(table[playedMonth]);
+                table[playedMonth].Clear();
+
+                // 해당 턴의 유저에게 삽입
+                foreach (Card c in cardsToCapture) currentPlayer.CaptureCard(c);
+
+                // 피 1장 뺏기
+                yield return StartCoroutine(StealOpponentPeeRoutine(1));
             }
+            // 뻑
             else if (totalCount == 3)
             {
                 // TODO: 뻑
             }
+            // 따닥
             else if (totalCount == 4)
             {
-                // TODO: 따닥(획득, 1장 뺏기)
+                // 바닥패에서 제거
+                List<Card> cardsToCapture = new List<Card>(table[playedMonth]);
+                table[playedMonth].Clear();
+
+                // 해당 턴의 유저에게 삽입
+                foreach (Card c in cardsToCapture) currentPlayer.CaptureCard(c);
+
+                // 피 1장 뺏기
+                yield return StartCoroutine(StealOpponentPeeRoutine(1));
             }
         }
         // 낸 패와 덱에서 뽑은 패가 다른 월인 경우
@@ -247,6 +276,11 @@ public class GameManager : MonoBehaviour
             {
                 // TODO: 뻑 먹기(전부 획득 + 1장 뺏기, 자뻑은 2장 뺏기)
             }
+
+            // 싹쓸이 판정
+            bool hasCapturedAnything = (playedCount == 2 || deckCount == 2);
+            if (CardDealer.GetTotalTableCardCount() == 0)
+                yield return StartCoroutine(StealOpponentPeeRoutine(1));
         }
 
         // 해당 턴의 유저가 획득한 패 정렬
@@ -269,7 +303,7 @@ public class GameManager : MonoBehaviour
         yield return null;
     }
 
-    /** 2장 중 1장 선택 코루틴 **/
+    /** 2장 중 1장 선택 루틴 **/
     private IEnumerator HandleChoiceRoutine(CardMonth month, Card triggerCard)
     {
         var table = CardDealer.TableCards;
@@ -308,5 +342,32 @@ public class GameManager : MonoBehaviour
         // 선택한 패 획득
         currentPlayer.CaptureCard(selectedChoiceCard);
         table[month].Remove(selectedChoiceCard);
+    }
+
+    /** 상대의 피를 뺏는 루틴 **/
+    private IEnumerator StealOpponentPeeRoutine(int count)
+    {
+        Player opponent = (currentPlayer == humanPlayer) ? computerPlayer : humanPlayer;
+
+        for (int i = 0; i < count; i++)
+        {
+            // 피가 없으면 continue
+            Card stolenCard = opponent.LosePee();
+            if (stolenCard == null) continue;
+
+            // 현재 유저의 피에 추가
+            currentPlayer.CaptureCard(stolenCard);
+
+            // 현재 유저의 피 앵커를 타겟으로 설정 및 레이어 정렬
+            Vector3 targetPos = currentPlayer.peeAnchor.position;
+            stolenCard.SetSortingOrder("TableCards", 100);
+
+            // 애니메이션 재생
+            AnimationManager.Instance.MoveCard(stolenCard, targetPos, Quaternion.identity, 0.4f);
+            yield return new WaitForSeconds(0.4f);
+        }
+
+        // 먹은 패 재정렬
+        // currentPlayer.OrganizeCapturedCards();
     }
 }

@@ -182,4 +182,13 @@ public class CardDealer : MonoBehaviour
             AnimationManager.Instance.MoveCard(card, targetPos, targetRot, 0.2f);
         }
     }
+
+    /** 바닥에 깔린 카드의 총개수를 반환 **/
+    public int GetTotalTableCardCount()
+    {
+        int count = 0;
+        foreach (var list in _tableCards.Values)
+            count += list.Count;
+        return count;
+    }
 }
