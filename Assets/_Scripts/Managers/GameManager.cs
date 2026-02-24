@@ -12,8 +12,9 @@ public class GameManager : MonoBehaviour
     public CardDealer CardDealer;
 
     [Header("플레이어 객체")]
-    public HumanPlayer humanPlayer;
-    public ComputerPlayer computerPlayer;
+    public HumanPlayer humanPlayer;         // 유저
+    public ComputerPlayer computerPlayer;   // AI
+    Player currentPlayer;                   // 현재 턴을 진행한 플레이어
 
     // 해당 턴 판정용 데이터
     Card lastPlayerCard;     // 이번 턴에 손에서 낸 카드
@@ -98,10 +99,11 @@ public class GameManager : MonoBehaviour
         Debug.Log("PlayerTurn 시작");
 
         // 플레이어 초기화
-        humanPlayer.StartTurn();
+        currentPlayer = humanPlayer;
+        currentPlayer.StartTurn();
 
         // 카드 선택까지 대기
-        yield return new WaitUntil(() => humanPlayer.hasPlayed);
+        yield return new WaitUntil(() => currentPlayer.hasPlayed);
 
         ChangeState(GameState.PlayHandCard);
     }
@@ -112,11 +114,11 @@ public class GameManager : MonoBehaviour
         Debug.Log("PlayHandCard 시작");
 
         // 유저가 선택한 카드를 손패에서 제거
-        lastPlayerCard = humanPlayer.selectedCard;
-        humanPlayer.handCards.Remove(lastPlayerCard);
+        lastPlayerCard = currentPlayer.selectedCard;
+        currentPlayer.handCards.Remove(lastPlayerCard);
 
         // 손패 재정렬
-        CardDealer.RearrangeHand(humanPlayer, CardDealer.playerHandAnchors);
+        CardDealer.RearrangeHand(currentPlayer, CardDealer.playerHandAnchors);
 
         // 바닥패 목적지 탐색
         int orderInLayer;
@@ -206,8 +208,8 @@ public class GameManager : MonoBehaviour
                 List<Card> cardsToCapture = new List<Card>(table[playedMonth]);
                 table[playedMonth].Clear();
 
-                // TODO: 해당 턴의 유저에게 삽입으로 바꿔야함
-                foreach (Card c in cardsToCapture) humanPlayer.CaptureCard(c);
+                // 해당 턴의 유저에게 삽입
+                foreach (Card c in cardsToCapture) currentPlayer.CaptureCard(c);
             }
             else if (playedCount == 3)
             {
@@ -226,8 +228,8 @@ public class GameManager : MonoBehaviour
                 List<Card> cardsToCapture = new List<Card>(table[deckMonth]);
                 table[deckMonth].Clear();
 
-                // TODO: 해당 턴의 유저에게 삽입으로 바꿔야함
-                foreach (Card c in cardsToCapture) humanPlayer.CaptureCard(c);
+                // 해당 턴의 유저에게 삽입
+                foreach (Card c in cardsToCapture) currentPlayer.CaptureCard(c);
             }
             else if (deckCount == 3)
             {
@@ -239,8 +241,8 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // TODO: 해당 턴의 유저에게 삽입으로 바꿔야함 
-        humanPlayer.OrganizeCapturedCards();
+        // 해당 턴의 유저가 획득한 패 정렬
+        currentPlayer.OrganizeCapturedCards();
         yield return new WaitForSeconds(0.4f);
 
         // 판정 시간
@@ -254,9 +256,8 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("TurnEnd 시작");
 
-        // TODO: 이전 턴이 Human이었는지 Computer였는지 구분하여 반대쪽으로 턴 넘겨줌
-
-        ChangeState(GameState.PlayerTurn);
+        // 반대쪽으로 턴 넘기기
+        ChangeState((currentPlayer == humanPlayer) ? GameState.AITurn : GameState.PlayerTurn);
         yield return null;
     }
 }

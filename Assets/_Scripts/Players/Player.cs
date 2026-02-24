@@ -12,6 +12,10 @@ public abstract class Player : MonoBehaviour
     public List<Card> handCards = new List<Card>();     // 들고 있는 패
     public List<Card> capturedCards = new List<Card>(); // 먹은 패
 
+    [Header("입력 상태")]
+    public Card selectedCard = null;    // 선택한 패
+    public bool hasPlayed = false;      // 해당 턴의 패 선택 여부
+
     [Header("게임 상태")]
     public int currentScore = 0;    // 현재 점수
     public int multiplier = 1;      // 배당
@@ -23,9 +27,16 @@ public abstract class Player : MonoBehaviour
     public Transform ddeeAnchor;       // 띠 (가운데 아래)
     public Transform peeAnchor;        // 피 (오른쪽)
 
-    //획득 패 겹침 간격
+    // 획득 패 겹침 간격
     Vector3 colOffset = new Vector3(0.2f, 0, 0);
     Vector3 rowOffset = new Vector3(0, 0.5f, 0);
+
+    /** 턴 시작 시 초기화 **/
+    public virtual void StartTurn() 
+    {
+        selectedCard = null;
+        hasPlayed = false;
+    }
 
     /** 카드 획득 **/
     public virtual void CaptureCard(Card card)

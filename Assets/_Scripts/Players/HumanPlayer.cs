@@ -3,20 +3,15 @@ using UnityEngine;
 
 public class HumanPlayer : Player
 {
-    [Header("입력 상태")]
-    public Card selectedCard = null;    // 선택한 패
-    public bool hasPlayed = false;      // 해당 턴의 패 선택 여부
-
     private void Start()
     {
         playerName = "플레이어";
     }
 
     /** 턴 시작 시 초기화 **/
-    public void StartTurn()
+    public override void StartTurn()
     {
-        selectedCard = null;
-        hasPlayed = false;
+        base.StartTurn();
         EvaluateHints();
     }
 
