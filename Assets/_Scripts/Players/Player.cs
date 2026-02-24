@@ -17,6 +17,16 @@ public abstract class Player : MonoBehaviour
     public int multiplier = 1;      // 배당
     public int goCount = 0;         // 고 횟수
 
+    [Header("획득 패 앵커")]
+    public Transform gwangAnchor;      // 광 (왼쪽)
+    public Transform yeolggeutAnchor;  // 열끗 (가운데 위)
+    public Transform ddeeAnchor;       // 띠 (가운데 아래)
+    public Transform peeAnchor;        // 피 (오른쪽)
+
+    //획득 패 겹침 간격
+    Vector3 colOffset = new Vector3(0.2f, 0, 0);
+    Vector3 rowOffset = new Vector3(0, 0.5f, 0);
+
     /** 카드 획득 **/
     public virtual void CaptureCard(Card card)
     {
@@ -38,9 +48,83 @@ public abstract class Player : MonoBehaviour
             handCards.Remove(card);
     }
 
-    /** 패 정렬 **/
+    /** 손패 정렬 **/
     public void SortHandCards()
     {
         handCards = handCards.OrderBy(card => (int)card.Month).ToList();
+    }
+
+    /** 먹은 패 정렬 **/
+    public void OrganizeCapturedCards()
+    {
+        // 광, 열끗, 띠 장수 카운팅
+        int gwangCount = 0;
+        int yeolCount = 0;
+        int ddeeCount = 0;
+
+        // 피 카운팅
+        int peeCountRow0 = 0;       // 1번째 줄
+        int peeCountRow1 = 0;       // 2번째 줄
+        int peeCountRow2 = 0;       // 3번째 줄
+        int currentPeeScore = 0;    // 현재 총 점수
+
+        foreach (Card c in capturedCards)
+        {
+            Vector3 targetPos = Vector3.zero;
+            int order = 0;
+
+            if (c.Type == CardType.Gwang)
+            {
+                targetPos = gwangAnchor.position + (colOffset * gwangCount);
+                order = gwangCount;
+                gwangCount++;
+            }
+            else if (c.Type == CardType.Yeolggeut)
+            {
+                targetPos = yeolggeutAnchor.position + (colOffset * yeolCount);
+                order = yeolCount;
+                yeolCount++;
+            }
+            else if (c.Type == CardType.Ddee)
+            {
+                targetPos = ddeeAnchor.position + (colOffset * ddeeCount);
+                order = ddeeCount;
+                ddeeCount++;
+            }
+            else if (c.Type == CardType.Pee || c.Type == CardType.Ssangpee)
+            {
+                // 0~10점: 1번 줄, 11~20점: 2번 줄, 21점 이상: 3번 줄
+                int row = Mathf.Min(currentPeeScore / 10, 2);
+                int col = 0;
+
+                if (row == 0) 
+                { 
+                    col = peeCountRow0; 
+                    peeCountRow0++; 
+                }
+                else if (row == 1) 
+                { 
+                    col = peeCountRow1; 
+                    peeCountRow1++; 
+                }
+                else 
+                { 
+                    col = peeCountRow2; 
+                    peeCountRow2++; 
+                }
+
+                // 위치 = 피 앵커 + (가로 오프셋 * 열) + (세로 오프셋 * 행)
+                targetPos = peeAnchor.position + (colOffset * col) + (rowOffset * row);
+                // 윗줄이 아랫줄보다 랜더링 더 높게
+                order = (row * 10) + col;
+
+                int score = (c.Type == CardType.Ssangpee) ? 2 : 1;
+                currentPeeScore += score;
+            }
+
+            // 레이어 설정 및 애니메이션 실행
+            c.SetSortingOrder("TableCards", order);
+            AnimationManager.Instance.MoveCard(c, targetPos, Quaternion.identity, 0.3f);
+        }
     }
 }
