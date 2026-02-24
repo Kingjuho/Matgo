@@ -117,7 +117,7 @@ Transform:
   m_GameObject: {fileID: 3023025734167856118}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.4, y: -0.55, z: 0}
+  m_LocalPosition: {x: 0.35, y: -0.575, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -345,6 +345,7 @@ MonoBehaviour:
   iconGood: {fileID: -6663044916168423905, guid: 71f20c84336c2e045b0230b531b452fb, type: 3}
   iconShake: {fileID: 3616512531535755360, guid: aac757b892ff2d04fbc305ff96f737b5, type: 3}
   iconBomb: {fileID: -2613247888821195678, guid: 1f5215ce9ccd5f547aa2393f24928b0c, type: 3}
+  basePosition: {x: 0, y: 0, z: 0}
 --- !u!210 &8005239801561878158
 SortingGroup:
   m_ObjectHideFlags: 0
