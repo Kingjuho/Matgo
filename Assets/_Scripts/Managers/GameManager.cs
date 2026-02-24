@@ -1,5 +1,6 @@
 ﻿using DG.Tweening;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -14,9 +15,9 @@ public class GameManager : MonoBehaviour
     public HumanPlayer humanPlayer;
     public ComputerPlayer computerPlayer;
 
-    [Header("해당 턴 판정용 데이터")]
-    public Card lastPlayerCard;     // 이번 턴에 손에서 낸 카드
-    public Card lastDeckCard;       // 이번 턴에 덱에서 깐 카드
+    // 해당 턴 판정용 데이터
+    Card lastPlayerCard;     // 이번 턴에 손에서 낸 카드
+    Card lastDeckCard;       // 이번 턴에 덱에서 깐 카드
 
     [Header("현재 상태")]
     public GameState currentState;
@@ -62,10 +63,13 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(FlipDeckCardRoutine());
                 break;
             case GameState.ResolveMatch:
+                StartCoroutine(ResolveMatchRoutine());
                 break;
             case GameState.CheckScore:
+                ChangeState(GameState.TurnEnd);
                 break;
             case GameState.TurnEnd:
+                StartCoroutine(TurnEndRoutine());
                 break;
             case GameState.GameOver:
                 break;
@@ -164,9 +168,95 @@ public class GameManager : MonoBehaviour
         ChangeState(GameState.ResolveMatch);
     }
 
-    ///** 공통: 판정 루틴 (쪽, 따닥, 뻑 등) **/
-    //private IEnumerator ResolveMatchRoutine()
-    //{
-    //    ChangeState(GameState.CheckScore);
-    //}
+    /** 공통: 판정 루틴 (쪽, 따닥, 뻑 등) **/
+    private IEnumerator ResolveMatchRoutine()
+    {
+        Debug.Log("ResolveMatch 시작");
+
+        CardMonth playedMonth = lastPlayerCard.Month;
+        CardMonth deckMonth = lastDeckCard.Month;
+        var table = CardDealer.TableCards;
+
+        // 낸 패와 덱에서 뽑은 패가 같은 월인 경우
+        if (playedMonth == deckMonth)
+        {
+            // 바닥패에 같은 월이 몇 개 있는 지 확인
+            int totalCount = table[playedMonth].Count;
+            if (totalCount == 2)
+            {
+                // TODO: 쪽(획득, 1장 뺏기)
+            }
+            else if (totalCount == 3)
+            {
+                // TODO: 뻑
+            }
+            else if (totalCount == 4)
+            {
+                // TODO: 따닥(획득, 1장 뺏기)
+            }
+        }
+        // 낸 패와 덱에서 뽑은 패가 다른 월인 경우
+        else
+        {
+            // 낸 패 판정
+            int playedCount = table[playedMonth].Count;
+            if (playedCount == 2)
+            {
+                // 바닥패에서 제거
+                List<Card> cardsToCapture = new List<Card>(table[playedMonth]);
+                table[playedMonth].Clear();
+
+                // TODO: 해당 턴의 유저에게 삽입으로 바꿔야함
+                foreach (Card c in cardsToCapture) humanPlayer.CaptureCard(c);
+            }
+            else if (playedCount == 3)
+            {
+                // TODO: 1장 선택
+            }
+            else if (playedCount == 4)
+            {
+                // TODO: 뻑 먹기 or 폭탄(전부 획득 + 1장 뺏기, 자뻑은 2장 뺏기)
+            }
+
+            // 덱에서 뽑은 패 판정
+            int deckCount = table[deckMonth].Count;
+            if (deckCount == 2)
+            {
+                // 바닥패에서 제거
+                List<Card> cardsToCapture = new List<Card>(table[deckMonth]);
+                table[deckMonth].Clear();
+
+                // TODO: 해당 턴의 유저에게 삽입으로 바꿔야함
+                foreach (Card c in cardsToCapture) humanPlayer.CaptureCard(c);
+            }
+            else if (deckCount == 3)
+            {
+                // TODO: 1장 선택
+            }
+            else if (deckCount == 4)
+            {
+                // TODO: 뻑 먹기(전부 획득 + 1장 뺏기, 자뻑은 2장 뺏기)
+            }
+        }
+
+        // TODO: 해당 턴의 유저에게 삽입으로 바꿔야함 
+        humanPlayer.OrganizeCapturedCards();
+        yield return new WaitForSeconds(0.4f);
+
+        // 판정 시간
+        yield return new WaitForSeconds(1f);
+
+        ChangeState(GameState.CheckScore);
+    }
+
+    /** 공통: 턴 종료 루틴 **/
+    private IEnumerator TurnEndRoutine()
+    {
+        Debug.Log("TurnEnd 시작");
+
+        // TODO: 이전 턴이 Human이었는지 Computer였는지 구분하여 반대쪽으로 턴 넘겨줌
+
+        ChangeState(GameState.PlayerTurn);
+        yield return null;
+    }
 }
