@@ -21,9 +21,10 @@ public class GameManager : MonoBehaviour
     public Dictionary<CardMonth, Player> bbuckRecords = new Dictionary<CardMonth, Player>();
 
     // 해당 턴 판정용 데이터
-    Card lastPlayerCard;        // 이번 턴에 손에서 낸 카드
-    Card lastDeckCard;          // 이번 턴에 덱에서 깐 카드
-    bool isBomb = false;        // 이번 턴에 폭탄 터트렸는지 여부
+    Card lastPlayerCard;            // 이번 턴에 손에서 낸 카드
+    Card lastDeckCard;              // 이번 턴에 덱에서 깐 카드
+    bool isBombThisTurn = false;    // 이번 턴에 폭탄 터트렸는지 여부
+    bool isShakeThisTurn = false;   // 이번 턴에 흔들었는 지 여부
 
     // 선택 대기 상태
     bool isChoosingCard = false;            // 선택 모드 활성화 여부
@@ -133,19 +134,63 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("PlayHandCard 시작");
 
-        // 유저가 선택한 카드를 손패에서 제거
         lastPlayerCard = currentPlayer.selectedCard;
-        currentPlayer.handCards.Remove(lastPlayerCard);
+
+        // 유저가 선택한 패가 폭탄이나 흔들기가 되는지 검사
+        HintType hintType = currentPlayer.CheckSpecialMoveCondition(lastPlayerCard);
+        isBombThisTurn = false;
+        isShakeThisTurn = false;
+
+        // 폭탄
+        if (hintType == HintType.Bomb)
+        {
+            isBombThisTurn = true;
+            currentPlayer.bombCount++;
+
+            // 소지패에서 같은 월 3장을 모두 바닥패로 던짐
+            CardMonth bombMonth = lastPlayerCard.Month;
+            List<Card> bombCards = currentPlayer.handCards.FindAll(c => c.Month == bombMonth);
+            foreach (Card card in bombCards)
+            {
+                // 유저가 선택한 카드를 손패에서 제거
+                currentPlayer.handCards.Remove(card);
+
+                // 바닥패 목적지 탐색
+                int orderInLayer;
+                Vector3 targetPos = CardDealer.CalculateTablePosition(card, out orderInLayer);
+
+                // 애니메이션 재생
+                StartCoroutine(AnimationManager.Instance.PlayDropCardToTable(card, targetPos, orderInLayer, true));
+            }
+
+            // TODO: 더미 패 2장 추가
+        }
+        else
+        {
+            // 흔들기
+            if (hintType == HintType.Shake)
+            {
+                isShakeThisTurn = true;
+                currentPlayer.shakeCount++;
+
+                // TODO: 흔들기 알림 팝업 2초 표시
+            }
+
+            // 유저가 선택한 카드를 손패에서 제거
+            currentPlayer.handCards.Remove(lastPlayerCard);
+
+            // 바닥패 목적지 탐색
+            int orderInLayer;
+            Vector3 targetPos = CardDealer.CalculateTablePosition(lastPlayerCard, out orderInLayer);
+
+            // 애니메이션 재생
+            yield return StartCoroutine(AnimationManager.Instance.PlayDropCardToTable(lastPlayerCard, targetPos, orderInLayer, true));
+        }
 
         // 손패 재정렬
-        CardDealer.RearrangeHand(currentPlayer, CardDealer.playerHandAnchors);
-
-        // 바닥패 목적지 탐색
-        int orderInLayer;
-        Vector3 targetPos = CardDealer.CalculateTablePosition(lastPlayerCard, out orderInLayer);
-
-        // 애니메이션 재생
-        yield return StartCoroutine(AnimationManager.Instance.PlayDropCardToTable(lastPlayerCard, targetPos, orderInLayer, true));
+        currentPlayer.SortHandCards();
+        Transform[] anchors = (currentPlayer == humanPlayer) ? CardDealer.playerHandAnchors : CardDealer.aiHandAnchors;
+        CardDealer.RearrangeHand(currentPlayer, anchors);
 
         ChangeState(GameState.FlipDeckCard);
     }
@@ -356,11 +401,7 @@ public class GameManager : MonoBehaviour
             CaptureAllCardsOfMonth(month);
 
             int stealCount = 1;
-            if (checkBomb && isBomb)
-            {
-                // TODO: 폭탄 더미 패 2장 유저에게 추가
-            }
-            else
+            if (!checkBomb || !isBombThisTurn)
             {
                 // 뻑 장부 검사
                 if (bbuckRecords.ContainsKey(month))
@@ -369,10 +410,10 @@ public class GameManager : MonoBehaviour
                     if (bbuckRecords[month] == currentPlayer) stealCount = 2;
                     bbuckRecords.Remove(month);
                 }
-
-                // 피 뺏기
-                yield return StartCoroutine(StealOpponentPeeRoutine(stealCount));
             }
+
+            // 피 뺏기
+            yield return StartCoroutine(StealOpponentPeeRoutine(stealCount));
         }
     }
 

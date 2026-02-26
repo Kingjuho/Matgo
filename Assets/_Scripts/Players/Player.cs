@@ -23,6 +23,10 @@ public abstract class Player : MonoBehaviour
     public int goCount = 0;             // 고 횟수
     public int BbuckCount = 0;          // 뻑 횟수
 
+    [Header("배당 계산용 상태")]
+    public int shakeCount = 0;          // 흔든 횟수 (점수 x2)
+    public int bombCount = 0;           // 폭탄 횟수 (점수 x2)
+
     [Header("획득 패 앵커")]
     public Transform gwangAnchor;      // 광 (왼쪽)
     public Transform yeolggeutAnchor;  // 열끗 (가운데 위)
@@ -59,7 +63,6 @@ public abstract class Player : MonoBehaviour
     {
         // 변칙적인 배당 증가는 없으므로 2배로 고정
         multiplier *= 2;
-        Debug.Log($"[{playerName}] 배당이 {multiplier}배로 증가");
     }
 
     /** 패 지우기 (턴 시작 시 등) **/
@@ -189,5 +192,28 @@ public abstract class Player : MonoBehaviour
         if (stolen.Count > 0) OrganizeCapturedCards();
 
         return stolen;
+    }
+
+    /** 해당 패의 폭탄/흔들기 가능 여부 검사 **/
+    public HintType CheckSpecialMoveCondition(Card selectedCard)
+    {
+        // 현재 소지패에 매개변수 패와 월이 똑같은 패가 몇 장 있는지 검사
+        int handCount = handCards.Count(c => c.Month == selectedCard.Month);
+
+        // 바닥패 중에 매개변수 패와 월이 똑같은 패가 있는지 검사
+        var table = GameManager.Instance.CardDealer.TableCards;
+        int tableCount = (table.ContainsKey(selectedCard.Month)) ? table[selectedCard.Month].Count : 0;
+
+        if (handCount == 3)
+        {
+            // 패에 3장, 바닥에 1장이면 폭탄
+            if (tableCount > 0) 
+                return HintType.Bomb;
+            // 아니면 흔들기
+            else 
+                return HintType.Shake;
+        }
+
+        return HintType.None;
     }
 }
