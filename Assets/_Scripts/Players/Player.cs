@@ -17,9 +17,11 @@ public abstract class Player : MonoBehaviour
     public bool hasPlayed = false;      // 해당 턴의 패 선택 여부
 
     [Header("게임 상태")]
-    public int currentScore = 0;    // 현재 점수
-    public int multiplier = 1;      // 배당
-    public int goCount = 0;         // 고 횟수
+    public int currentTurnCount = 0;    // 현재 진행 턴 수
+    public int currentScore = 0;        // 현재 점수
+    public int multiplier = 1;          // 배당
+    public int goCount = 0;             // 고 횟수
+    public int BbuckCount = 0;          // 뻑 횟수
 
     [Header("획득 패 앵커")]
     public Transform gwangAnchor;      // 광 (왼쪽)
@@ -31,11 +33,19 @@ public abstract class Player : MonoBehaviour
     Vector3 colOffset = new Vector3(0.2f, 0, 0);
     Vector3 rowOffset = new Vector3(0, 0.5f, 0);
 
+    /** 새 게임 시작 시 초기화 **/
+    public virtual void StartGame()
+    {
+        currentTurnCount = 0;
+        BbuckCount = 0;
+    }
+
     /** 턴 시작 시 초기화 **/
     public virtual void StartTurn() 
     {
         selectedCard = null;
         hasPlayed = false;
+        currentTurnCount++;
     }
 
     /** 카드 획득 **/
@@ -139,23 +149,45 @@ public abstract class Player : MonoBehaviour
         }
     }
 
-    /** 상대에게 피 1장을 뺏기는 함수 **/
-    public Card LosePee()
+    /** 상대에게 피를 뺏기는 함수 **/
+    public List<Card> LosePees(int count)
     {
+        // 반환할 피 리스트
+        List<Card> stolen = new List<Card>();
         // 피, 쌍피만 검색해서 리스트에 삽입
         List<Card> myPees = capturedCards.FindAll(c => c.Type == CardType.Pee || c.Type == CardType.Ssangpee);
 
-        // 뺏길 피가 없을 시 null 반환
-        if (myPees.Count == 0) return null;
+        // 뺏길 피가 없을 시 빈 리스트 반환
+        if (myPees.Count == 0) return stolen;
 
-        // 일반 피를 우선 탐색, 없으면 쌍피
-        Card stolenCard = myPees.Find(c => c.Type == CardType.Pee);
-        if (stolenCard == null) stolenCard = myPees[0];
+        if (count == 2)
+        {
+            // 2장 뺏길 땐 쌍피 우선, 없으면 일반 피 2장
+            Card ssangPee = myPees.Find(c => c.Type == CardType.Ssangpee);
+            if (ssangPee != null)
+            {
+                stolen.Add(ssangPee);
+            }
+            else
+            {
+                var normalPees = myPees.FindAll(c => c.Type == CardType.Pee);
+                stolen.AddRange(normalPees.Take(Mathf.Min(2, normalPees.Count)));
+            }    
+        }
+        else if (count == 1)
+        {
+            // 일반 피 뺏기, 없으면 아무거나 집어오기
+            Card normalPee = myPees.Find(c => c.Type == CardType.Pee);
+            if (normalPee != null)
+                stolen.Add(normalPee);
+            else
+                stolen.Add(myPees[0]);
+        }
 
         // 먹은 패 재정렬
-        capturedCards.Remove(stolenCard);
-        OrganizeCapturedCards();
+        foreach (var c in stolen) capturedCards.Remove(c);
+        if (stolen.Count > 0) OrganizeCapturedCards();
 
-        return stolenCard;
+        return stolen;
     }
 }
