@@ -1,28 +1,30 @@
 ﻿/** 1~12월 열거형 **/
 public enum CardMonth
 {
-    Jan = 1, // 송학
-    Feb = 2, // 매조
-    Mar = 3, // 벚꽃
-    Apr = 4, // 흑싸리
-    May = 5, // 난초
-    Jun = 6, // 모란
-    Jul = 7, // 홍싸리
-    Aug = 8, // 공산
-    Sep = 9, // 국화
-    Oct = 10, // 단풍
-    Nov = 11, // 오동
-    Dec = 12  // 비
+    Jan = 1,    // 송학
+    Feb = 2,    // 매조
+    Mar = 3,    // 벚꽃
+    Apr = 4,    // 흑싸리
+    May = 5,    // 난초
+    Jun = 6,    // 모란
+    Jul = 7,    // 홍싸리
+    Aug = 8,    // 공산
+    Sep = 9,    // 국화
+    Oct = 10,   // 단풍
+    Nov = 11,   // 오동
+    Dec = 12    // 비
 }
 
 /** 카드 타입 열거형 **/
 public enum CardType
 {
     Pee,        // 피
-    Ssangpee,    // 쌍피
+    Ssangpee,   // 쌍피
+    Threepee,   // 쓰리피
     Ddee,       // 띠
     Yeolggeut,  // 열끗
-    Gwang       // 광
+    Gwang,      // 광
+    Dummy       // 더미(폭탄 등)
 }
 
 /** 특수 타입 열거형 **/
@@ -33,7 +35,8 @@ public enum SpecialFeature
     HongDan,    // 홍단
     ChungDan,   // 청단
     ChoDan,     // 초단
-    Bee         // 비
+    Bee,        // 비
+    Bonus       // 보너스
 }
 
 /** 카드 힌트 열거형 **/
