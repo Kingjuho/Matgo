@@ -89,14 +89,14 @@ public class GameManager : MonoBehaviour
     /** 초기화 루틴 **/
     private IEnumerator InitRoutine()
     {
-        // 테스트
-        for (int i = 0; i < 10; i++)
-        {
-            Card card = CardDealer.deck.Draw();
-            card.FlipInstant(true);
-            computerPlayer.CaptureCard(card);
-        }
-        computerPlayer.OrganizeCapturedCards();
+        //// 테스트
+        //for (int i = 0; i < 10; i++)
+        //{
+        //    Card card = CardDealer.deck.Draw();
+        //    card.FlipInstant(true);
+        //    computerPlayer.CaptureCard(card);
+        //}
+        //computerPlayer.OrganizeCapturedCards();
 
         // 패 분배
         yield return StartCoroutine(CardDealer.DistributeCardsSequence());
@@ -160,7 +160,7 @@ public class GameManager : MonoBehaviour
                 Vector3 targetPos = CardDealer.CalculateTablePosition(card, out orderInLayer);
 
                 // 애니메이션 재생
-                StartCoroutine(AnimationManager.Instance.PlayDropCardToTable(card, targetPos, orderInLayer, true));
+                StartCoroutine(AnimationManager.Instance?.PlayDropCardToTable(card, targetPos, orderInLayer, true));
             }
 
             // TODO: 더미 패 2장 추가
@@ -173,7 +173,14 @@ public class GameManager : MonoBehaviour
                 isShakeThisTurn = true;
                 currentPlayer.shakeCount++;
 
-                // TODO: 흔들기 알림 팝업 2초 표시
+                // 소지패에서 같은 월 3장 검색
+                CardMonth shakeMonth = lastPlayerCard.Month;
+                List<Card> shakeCards = currentPlayer.handCards.FindAll(c => c.Month == shakeMonth);
+                
+                // 2초간 흔들기 팝업 표시
+                UIManager.Instance?.ShowShakePopup(shakeCards);
+                yield return new WaitForSeconds(2.0f);
+                UIManager.Instance?.HideShakePopup();
             }
 
             // 유저가 선택한 카드를 손패에서 제거
@@ -184,7 +191,7 @@ public class GameManager : MonoBehaviour
             Vector3 targetPos = CardDealer.CalculateTablePosition(lastPlayerCard, out orderInLayer);
 
             // 애니메이션 재생
-            yield return StartCoroutine(AnimationManager.Instance.PlayDropCardToTable(lastPlayerCard, targetPos, orderInLayer, true));
+            yield return StartCoroutine(AnimationManager.Instance?.PlayDropCardToTable(lastPlayerCard, targetPos, orderInLayer, true));
         }
 
         // 손패 재정렬
@@ -229,7 +236,7 @@ public class GameManager : MonoBehaviour
         Vector3 targetPos = CardDealer.CalculateTablePosition(lastDeckCard, out orderInLayer);
 
         // 애니메이션 재생
-        yield return StartCoroutine(AnimationManager.Instance.PlayDropCardToTable(lastDeckCard, targetPos, orderInLayer, false));
+        yield return StartCoroutine(AnimationManager.Instance?.PlayDropCardToTable(lastDeckCard, targetPos, orderInLayer, false));
 
 
         ChangeState(GameState.ResolveMatch);
@@ -303,7 +310,7 @@ public class GameManager : MonoBehaviour
         else
         {
             // UIManager 호출, 콜백
-            UIManager.Instance.ShowChoicePopup(options, (chosenCard) =>
+            UIManager.Instance?.ShowChoicePopup(options, (chosenCard) =>
             {
                 selectedChoiceCard = chosenCard;
                 isChoosingCard = false;
@@ -341,7 +348,7 @@ public class GameManager : MonoBehaviour
             stolenCard.SetSortingOrder("TableCards", 100);
 
             // 애니메이션 재생
-            AnimationManager.Instance.MoveCard(stolenCard, targetPos, Quaternion.identity, 0.4f);
+            AnimationManager.Instance?.MoveCard(stolenCard, targetPos, Quaternion.identity, 0.4f);
         }
 
         // 대기

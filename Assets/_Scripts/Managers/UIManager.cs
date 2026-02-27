@@ -9,11 +9,16 @@ public class UIManager : MonoBehaviour
 
     [Header("선택 팝업 UI")]
     public GameObject choicePopupPanel;
-    // UI에 카드를 그려줄 이미지나 버튼 등 (에셋에 맞게 연결)
-    public Image option1_Image;
-    public Image option2_Image;
-    public Button option1_Button;
-    public Button option2_Button;
+    public Image choice1_Image;
+    public Image choice2_Image;
+    public Button choice1_Button;
+    public Button choice2_Button;
+
+    [Header("흔들기 팝업 UI")]
+    public GameObject shakePopupPanel;
+    public Image shake1_Image;
+    public Image shake2_Image;
+    public Image shake3_Image;
 
     // 누가 결과를 기다리고 있는지 기억할 콜백 함수
     private Action<Card> _onChoiceMadeCallback;
@@ -37,14 +42,14 @@ public class UIManager : MonoBehaviour
         _onChoiceMadeCallback = callback;
 
         // 화투패 이미지 뒤집어 씌우기
-        option1_Image.sprite = options[0].frontSprite;
-        option2_Image.sprite = options[1].frontSprite;
+        choice1_Image.sprite = options[0].frontSprite;
+        choice2_Image.sprite = options[1].frontSprite;
 
         // 버튼 리스너 재설정
-        option1_Button.onClick.RemoveAllListeners();
-        option2_Button.onClick.RemoveAllListeners();
-        option1_Button.onClick.AddListener(() => OnOptionClicked(0));
-        option2_Button.onClick.AddListener(() => OnOptionClicked(1));
+        choice1_Button.onClick.RemoveAllListeners();
+        choice2_Button.onClick.RemoveAllListeners();
+        choice1_Button.onClick.AddListener(() => OnOptionClicked(0));
+        choice2_Button.onClick.AddListener(() => OnOptionClicked(1));
 
         choicePopupPanel.SetActive(true);
     }
@@ -55,4 +60,17 @@ public class UIManager : MonoBehaviour
         // 선택한 카드를 넘겨주며 콜백
         _onChoiceMadeCallback?.Invoke(_currentOptions[index]);
     }
+
+    /** 흔들기 팝업 **/
+    public void ShowShakePopup(List<Card> options)
+    {
+        // 화투패 이미지 뒤집어 씌우기
+        shake1_Image.sprite = options[0].frontSprite;
+        shake2_Image.sprite = options[1].frontSprite;
+        shake3_Image.sprite = options[2].frontSprite;
+
+        shakePopupPanel.SetActive(true);
+    }
+    /** 흔들기 팝업 닫기 **/
+    public void HideShakePopup() => shakePopupPanel.SetActive(false);
 }
