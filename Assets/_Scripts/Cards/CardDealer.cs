@@ -14,6 +14,10 @@ public class CardDealer : MonoBehaviour
     public Transform[] playerHandAnchors;   // 플레이어 패 (10장)
     public Transform[] tableAnchors;        // 테이블 (12칸)
 
+    [Header("더미 패 설정")]
+    [SerializeField] Sprite dummySprite;    // 더미 스프라이트
+    [SerializeField] GameObject cardPrefab; // 카드 프리팹
+
     // 간격 설정
     Vector2 stackOffset = new Vector2(0.15f, -0.2f);     // 바닥패의 같은 월 패가 겹칠 때 간격
 
@@ -190,5 +194,20 @@ public class CardDealer : MonoBehaviour
         foreach (var list in _tableCards.Values)
             count += list.Count;
         return count;
+    }
+
+    /** 더미 패 생성 **/
+    public Card CreateDummyCard()
+    {
+        // 프리팹 생성
+        GameObject go = Instantiate(cardPrefab, deckAnchor.position, Quaternion.identity);
+        go.name = "Dummy_Bomb";
+
+        // 카드 초기화
+        Card card = go.GetComponent<Card>();
+        card.Initialize((CardMonth)99, CardType.Dummy, dummySprite);
+        card.FlipInstant(true);
+
+        return card;
     }
 }
