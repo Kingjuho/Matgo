@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 472ad025b4391e3498a2525fa59fea5c
+guid: f2c80cd85020b9e42a156cfdc89b2861
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1416671984048162619
-    second: dummy_bomb__0
+      213: 7089389913909875640
+    second: dummy_bomb_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dummy_bomb__0
+      name: dummy_bomb_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b374074e9a709a310800000000000000
-      internalID: 1416671984048162619
+      spriteID: 8b3d5d4c092926260800000000000000
+      internalID: 7089389913909875640
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dummy_bomb__0: 1416671984048162619
+      dummy_bomb_0: 7089389913909875640
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
