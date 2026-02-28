@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.VirtualTexturing;
 
 public class GameManager : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public class GameManager : MonoBehaviour
     Card lastPlayerCard;            // 이번 턴에 손에서 낸 카드
     Card lastDeckCard;              // 이번 턴에 덱에서 깐 카드
     bool isBombThisTurn = false;    // 이번 턴에 폭탄 터트렸는지 여부
-    bool isShakeThisTurn = false;   // 이번 턴에 흔들었는 지 여부
+    bool isShakeThisTurn = false;   // 이번 턴에 흔들었는지 여부
 
     // 선택 대기 상태
     bool isChoosingCard = false;            // 선택 모드 활성화 여부
@@ -89,14 +90,8 @@ public class GameManager : MonoBehaviour
     /** 초기화 루틴 **/
     private IEnumerator InitRoutine()
     {
-        //// 테스트
-        //for (int i = 0; i < 10; i++)
-        //{
-        //    Card card = CardDealer.deck.Draw();
-        //    card.FlipInstant(true);
-        //    computerPlayer.CaptureCard(card);
-        //}
-        //computerPlayer.OrganizeCapturedCards();
+        // 디버깅용 치트 활성화
+        yield return StartCoroutine(Cheat());
 
         // 패 분배
         yield return StartCoroutine(CardDealer.DistributeCardsSequence());
@@ -136,6 +131,23 @@ public class GameManager : MonoBehaviour
 
         lastPlayerCard = currentPlayer.selectedCard;
 
+        // 더미 패 예외 처리
+        if (lastPlayerCard.Type == CardType.Dummy)
+        {
+            // 소멸
+            currentPlayer.handCards.Remove(lastPlayerCard);
+            Destroy(lastPlayerCard.gameObject);
+            lastPlayerCard = null;
+
+            // 손패 재정렬
+            currentPlayer.SortHandCards();
+            Transform[] d_anchors = (currentPlayer == humanPlayer) ? CardDealer.playerHandAnchors : CardDealer.aiHandAnchors;
+            CardDealer.RearrangeHand(currentPlayer, d_anchors);
+
+            ChangeState(GameState.FlipDeckCard);
+            yield break;
+        }
+
         // 유저가 선택한 패가 폭탄이나 흔들기가 되는지 검사
         HintType hintType = currentPlayer.CheckSpecialMoveCondition(lastPlayerCard);
         isBombThisTurn = false;
@@ -163,7 +175,12 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(AnimationManager.Instance?.PlayDropCardToTable(card, targetPos, orderInLayer, true));
             }
 
-            // TODO: 더미 패 2장 추가
+            // 더미 패 2장 추가
+            for (int i = 0; i < 2; i++)
+            {
+                Card dummy = CardDealer.CreateDummyCard();
+                currentPlayer.handCards.Add(dummy);
+            }
         }
         else
         {
@@ -247,21 +264,29 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("ResolveMatch 시작");
 
-        CardMonth playedMonth = lastPlayerCard.Month;
+        CardMonth playedMonth = lastPlayerCard?.Month ?? (CardMonth)0;
         CardMonth deckMonth = lastDeckCard.Month;
 
-        // 특수 판정 (낸 패 == 뒤집은 패)
-        if (playedMonth == deckMonth)
+        // 더미 패
+        if (lastPlayerCard == null)
         {
-            yield return StartCoroutine(ProcessSpecialMatchRoutine(playedMonth));
+            yield return StartCoroutine(ProcessSingleMatchRoutine(deckMonth, lastDeckCard, false));
         }
-        // 일반 판정 (낸 패 != 뒤집은 패)
         else
         {
-            // 낸 패 처리
-            yield return StartCoroutine(ProcessSingleMatchRoutine(playedMonth, lastPlayerCard, true));
-            // 덱 패 처리
-            yield return StartCoroutine(ProcessSingleMatchRoutine(deckMonth, lastDeckCard, false));
+            // 특수 판정 (낸 패 == 뒤집은 패)
+            if (playedMonth == deckMonth)
+            {
+                yield return StartCoroutine(ProcessSpecialMatchRoutine(playedMonth));
+            }
+            // 일반 판정 (낸 패 != 뒤집은 패)
+            else
+            {
+                // 낸 패 처리
+                yield return StartCoroutine(ProcessSingleMatchRoutine(playedMonth, lastPlayerCard, true));
+                // 덱 패 처리
+                yield return StartCoroutine(ProcessSingleMatchRoutine(deckMonth, lastDeckCard, false));
+            }
         }
 
         // 싹쓸 판정
@@ -438,4 +463,26 @@ public class GameManager : MonoBehaviour
         // 해당 플레이어에게 지급
         foreach (Card c in cardsToCapture) currentPlayer.CaptureCard(c);
     }
+
+
+    #region 디버깅용
+
+    private IEnumerator Cheat()
+    {
+        int cheatMonth = -1;
+        bool isCheatSelected = false;
+
+        UIManager.Instance?.ShowCheatPopup((selectedMonth) =>
+        {
+            cheatMonth = selectedMonth;
+            isCheatSelected = true;
+        });
+
+        yield return new WaitUntil(() => isCheatSelected);
+
+        if (cheatMonth >= 1 && cheatMonth <= 12)
+            CardDealer.deck.StackDeckForPlayer((CardMonth)cheatMonth);
+    }
+
+    #endregion
 }

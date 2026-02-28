@@ -123,4 +123,25 @@ public class Deck : MonoBehaviour
         _cards.RemoveAt(0);
         return cardToDraw;
     }
+
+
+    #region 디버깅용
+
+    /** 특정 월의 패 4장을 플레이어에게 삽입 **/
+    public void StackDeckForPlayer(CardMonth targetMonth)
+    {
+        List<Card> cheatCards = _cards.FindAll(c => c.Month == targetMonth);
+        foreach (Card c in cheatCards)
+            _cards.Remove(c);
+
+        for (int i = 0; i < cheatCards.Count; i++)
+        {
+            _cards.Insert(5 + i, cheatCards[i]);
+            cheatCards[i].transform.SetSiblingIndex(5 + i);
+        }
+
+        Debug.Log($"[Cheat] {targetMonth}월 카드 4장을 플레이어의 패에 삽입");
+    }
+
+    #endregion
 }

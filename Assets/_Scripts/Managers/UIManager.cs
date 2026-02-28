@@ -73,4 +73,26 @@ public class UIManager : MonoBehaviour
     }
     /** 흔들기 팝업 닫기 **/
     public void HideShakePopup() => shakePopupPanel.SetActive(false);
+
+
+    #region 디버깅용
+
+    [Header("치트/디버그 팝업 UI")]
+    public GameObject cheatPopupPanel;
+    private Action<int> _onCheatSelectedCallback;
+
+    /** 치트 팝업 띄우기 **/
+    public void ShowCheatPopup(Action<int> callback)
+    {
+        _onCheatSelectedCallback = callback;
+        cheatPopupPanel.SetActive(true);
+    }
+    /** 치트 팝업 버튼 클릭 이벤트 **/
+    public void OnCheatButtonClicked(int monthValue)
+    {
+        cheatPopupPanel.SetActive(false);
+        _onCheatSelectedCallback?.Invoke(monthValue);
+    }
+
+    #endregion
 }
