@@ -77,7 +77,7 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(ResolveMatchRoutine());
                 break;
             case GameState.CheckScore:
-                ChangeState(GameState.TurnEnd);
+                StartCoroutine(CheckScoreRoutine());
                 break;
             case GameState.TurnEnd:
                 StartCoroutine(TurnEndRoutine());
@@ -301,6 +301,21 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         ChangeState(GameState.CheckScore);
+    }
+
+    private IEnumerator CheckScoreRoutine()
+    {
+        Debug.Log("CheckScore 시작");
+
+        // 점수 계산
+        int score = currentPlayer.CalculateScore();
+        Debug.Log($"[{currentPlayer.playerName}] 현재 점수: {score}점");
+
+        // TODO: 고/스톱
+        if (score >= 7) Debug.Log("승리");
+
+        ChangeState(GameState.TurnEnd);
+        yield return null;
     }
 
     /** 공통: 턴 종료 루틴 **/
