@@ -216,4 +216,54 @@ public abstract class Player : MonoBehaviour
 
         return HintType.None;
     }
+
+    /** 점수 계산 **/
+    public int CalculateScore()
+    {
+        int totalScore = 0;
+
+        // 피 점수 계산
+        int peeCount = 0;
+        foreach (Card c in capturedCards)
+        {
+            // 피, 쌍피, 쓰리피
+            if (c.Type == CardType.Pee) peeCount += 1;
+            else if (c.Type == CardType.Ssangpee) peeCount += 2;
+            else if (c.Type == CardType.Threepee) peeCount += 3;
+        }
+        // 10장 = 1점, 11장 = 2점, ...
+        if (peeCount >= 10) totalScore += (peeCount - 9);
+
+        // 광 점수 계산
+        List<Card> gwangs = capturedCards.FindAll(c => c.Type == CardType.Gwang);
+        if (gwangs.Count == 5) totalScore += 15;
+        else if (gwangs.Count == 4) totalScore += 4;
+        else if (gwangs.Count == 3)
+        {
+            // 비삼광 = 2점, 삼광 = 3점
+            bool hasBee = gwangs.Exists(c => c.Month == CardMonth.Dec);
+            totalScore += hasBee ? 2 : 3;
+        }
+
+        // 열끗 점수 계산
+        List<Card> yeols = capturedCards.FindAll(c => c.Type == CardType.Yeolggeut);
+        // 5장 = 1점, 6장 = 2점, ...
+        if (yeols.Count >= 5) totalScore += (yeols.Count - 4);
+        // 고도리 판정
+        int godoriCount = yeols.Count(c => c.Feature == SpecialFeature.Godori);
+        if (godoriCount == 3) totalScore += 5;
+
+        // 띠 점수 계산
+        List<Card> ddees = capturedCards.FindAll(c => c.Type == CardType.Ddee);
+        // 5장 = 1점, 6장 = 2점, ...
+        if (ddees.Count >= 5) totalScore += (ddees.Count - 4);
+        // 홍단, 청단, 초단 판정
+        if (ddees.Count(c => c.Feature == SpecialFeature.HongDan) == 3) totalScore += 3;
+        if (ddees.Count(c => c.Feature == SpecialFeature.ChungDan) == 3) totalScore += 3;
+        if (ddees.Count(c => c.Feature == SpecialFeature.ChoDan) == 3) totalScore += 3;
+
+        // 현재 점수 갱신 및 반환
+        currentScore = totalScore;
+        return totalScore;
+    }
 }
