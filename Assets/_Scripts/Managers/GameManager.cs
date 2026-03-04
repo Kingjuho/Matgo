@@ -541,11 +541,11 @@ public class GameManager : MonoBehaviour
         int myYeolCount = winner.capturedCards.Count(c => c.Type == CardType.Yeolggeut);
 
         // 피박
-        if (myPeeCount >= 10 && oppPeeCount <= 7) loser.isPeebak = true;
+        loser.isPeebak = (myPeeCount >= 10 && oppPeeCount <= 7);
         // 광박
-        if (myGwangCount >= 3 && oppGwangCount == 0) loser.isGwangbak = true;
+        loser.isGwangbak = (myGwangCount >= 3 && oppGwangCount == 0);
         // 멍박
-        if (myYeolCount >= 7) winner.isMeongbak = true;
+        winner.isMeongbak = (myYeolCount >= 7);
     }
 
     #region 디버깅용
