@@ -2,27 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
     [Header("선택 팝업 UI")]
+    // UI
     public GameObject choicePopupPanel;
     public Image choice1_Image;
     public Image choice2_Image;
     public Button choice1_Button;
     public Button choice2_Button;
+    // 콜백 함수
+    private Action<Card> _onChoiceMadeCallback;
+    private List<Card> _currentOptions;
 
     [Header("흔들기 팝업 UI")]
+    // UI
     public GameObject shakePopupPanel;
     public Image shake1_Image;
     public Image shake2_Image;
     public Image shake3_Image;
 
-    // 누가 결과를 기다리고 있는지 기억할 콜백 함수
-    private Action<Card> _onChoiceMadeCallback;
-    private List<Card> _currentOptions;
+    [Header("고/스톱 팝업 UI")]
+    // UI
+    public GameObject goStopPopupPanel;
+    public TextMeshProUGUI txtStopMoney;
+    // 콜백 함수
+    private Action<bool> _onGoStopMadeCallback;
 
     private void Awake()
     {
@@ -61,6 +70,7 @@ public class UIManager : MonoBehaviour
         _onChoiceMadeCallback?.Invoke(_currentOptions[index]);
     }
 
+
     /** 흔들기 팝업 **/
     public void ShowShakePopup(List<Card> options)
     {
@@ -73,6 +83,27 @@ public class UIManager : MonoBehaviour
     }
     /** 흔들기 팝업 닫기 **/
     public void HideShakePopup() => shakePopupPanel.SetActive(false);
+
+
+    /** 고/스톱 팝업 **/
+    public void ShowGoStopPopup(long calculatedMoney, Action<bool> callback)
+    {
+        _onGoStopMadeCallback = callback;
+
+        // 스톱 시 획득 금액 갱신
+        if (txtStopMoney != null)
+            // txtStopMoney.text =  $"{calculatedMoney:#,##0}원";
+            txtStopMoney.text = Utils.FormatMoney(calculatedMoney);
+
+        goStopPopupPanel.SetActive(true);
+    }
+    /** 고/스톱 팝업 클릭 이벤트 **/
+    public void OnGoOrStopClicked(bool isGo)
+    {
+        // true: 고, false: 스톱
+        goStopPopupPanel.SetActive(false);
+        _onGoStopMadeCallback?.Invoke(isGo);
+    }
 
 
     #region 디버깅용

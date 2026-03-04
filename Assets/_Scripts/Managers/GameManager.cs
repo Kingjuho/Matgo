@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.VirtualTexturing;
 
 public class GameManager : MonoBehaviour
 {
@@ -303,6 +302,7 @@ public class GameManager : MonoBehaviour
         ChangeState(GameState.CheckScore);
     }
 
+    /** 공통: 점수 체크 루틴 **/
     private IEnumerator CheckScoreRoutine()
     {
         Debug.Log("CheckScore 시작");
@@ -311,8 +311,55 @@ public class GameManager : MonoBehaviour
         int score = currentPlayer.CalculateScore();
         Debug.Log($"[{currentPlayer.playerName}] 현재 점수: {score}점");
 
-        // TODO: 고/스톱
-        if (score >= 7) Debug.Log("승리");
+        // 났을 경우
+        if (score >= 7 && score > currentPlayer.lastGoScore)
+        {
+            // 고박 체크
+            Player opponent = (currentPlayer == humanPlayer) ? computerPlayer : humanPlayer;
+            if (opponent.goCount > 0) opponent.isGobak = true;
+
+            // 금액 계산
+            long estimatedMoney = Utils.CalculateFinalMoney(score, currentPlayer, opponent, 500);
+
+            bool isGo = false;
+            bool isDecisionMade = false;
+
+            // AI가 났을 경우
+            if (currentPlayer == computerPlayer)
+            {
+                // TODO: AI가 현재 필드를 보고 판단하도록. 현재는 무조건 스톱
+                yield return new WaitForSeconds(1.0f);
+                isGo = false;
+                isDecisionMade = true;
+            }
+            // 플레이어가 났을 경우
+            else
+            {
+                // GoStop 팝업 표시
+                UIManager.Instance?.ShowGoStopPopup(estimatedMoney, (decision) =>
+                {
+                    isGo = decision;
+                    isDecisionMade = true;
+                });
+                yield return new WaitUntil(() => isDecisionMade);
+
+                // 고/스톱
+                if (isGo)
+                {
+                    currentPlayer.goCount++;
+                    score++;
+                    currentPlayer.lastGoScore = score;
+
+                    // 3고 이상: 2배씩 증가
+                    if (currentPlayer.goCount >= 3) currentPlayer.DoubleMultiplier();
+                }
+                else
+                {
+                    ChangeState(GameState.GameOver);
+                    yield break;
+                }
+            }
+        }
 
         ChangeState(GameState.TurnEnd);
         yield return null;

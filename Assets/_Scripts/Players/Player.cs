@@ -22,10 +22,17 @@ public abstract class Player : MonoBehaviour
     public int multiplier = 1;          // 배당
     public int goCount = 0;             // 고 횟수
     public int BbuckCount = 0;          // 뻑 횟수
+    public int lastGoScore = 0;         // 이전 고 점수
 
     [Header("배당 계산용 상태")]
     public int shakeCount = 0;          // 흔든 횟수 (점수 x2)
     public int bombCount = 0;           // 폭탄 횟수 (점수 x2)
+
+    [Header("박(Penalty) 상태")]
+    public bool isGobak = false;        // 고박 (상대 점수 x2)
+    public bool isPeebak = false;       // 피박 (상대 점수 x2)
+    public bool isGwangbak = false;     // 광박 (상대 점수 x2)
+    public bool isMeongbak = false;     // 멍박 (상대 점수 x2)
 
     [Header("획득 패 앵커")]
     public Transform gwangAnchor;      // 광 (왼쪽)
@@ -40,8 +47,23 @@ public abstract class Player : MonoBehaviour
     /** 새 게임 시작 시 초기화 **/
     public virtual void StartGame()
     {
+        // 게임 상태 초기화
         currentTurnCount = 0;
+        currentScore = 0;
+        multiplier = 1;
+        goCount = 0;
         BbuckCount = 0;
+        lastGoScore = 0;
+
+        // 배당 계산용 상태 초기화
+        shakeCount = 0;
+        bombCount = 0;
+
+        // 패널티 초기화
+        isGobak = false;
+        isPeebak = false;
+        isGwangbak = false;
+        isMeongbak = false;
     }
 
     /** 턴 시작 시 초기화 **/
@@ -58,10 +80,9 @@ public abstract class Player : MonoBehaviour
         capturedCards.Add(card);
     }
 
-    /** 배당 증가 **/
-    public void addMultiplier()
+    /** 배당 2배 증가 **/
+    public void DoubleMultiplier()
     {
-        // 변칙적인 배당 증가는 없으므로 2배로 고정
         multiplier *= 2;
     }
 
@@ -157,7 +178,7 @@ public abstract class Player : MonoBehaviour
     {
         // 반환할 피 리스트
         List<Card> stolen = new List<Card>();
-        // 피, 쌍피만 검색해서 리스트에 삽입
+        // 피, 쌍피 필터링
         List<Card> myPees = capturedCards.FindAll(c => c.Type == CardType.Pee || c.Type == CardType.Ssangpee);
 
         // 뺏길 피가 없을 시 빈 리스트 반환
@@ -165,12 +186,13 @@ public abstract class Player : MonoBehaviour
 
         if (count == 2)
         {
-            // 2장 뺏길 땐 쌍피 우선, 없으면 일반 피 2장
+            // 2장 뺏길 땐 쌍피 우선
             Card ssangPee = myPees.Find(c => c.Type == CardType.Ssangpee);
             if (ssangPee != null)
             {
                 stolen.Add(ssangPee);
             }
+            // 없으면 일반 피 2장
             else
             {
                 var normalPees = myPees.FindAll(c => c.Type == CardType.Pee);
@@ -261,6 +283,9 @@ public abstract class Player : MonoBehaviour
         if (ddees.Count(c => c.Feature == SpecialFeature.HongDan) == 3) totalScore += 3;
         if (ddees.Count(c => c.Feature == SpecialFeature.ChungDan) == 3) totalScore += 3;
         if (ddees.Count(c => c.Feature == SpecialFeature.ChoDan) == 3) totalScore += 3;
+
+        // 고 카운트에 따른 점수 추가
+        totalScore += goCount;
 
         // 현재 점수 갱신 및 반환
         currentScore = totalScore;
