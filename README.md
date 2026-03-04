@@ -17,3 +17,5 @@
 * [LAYERLAB - GUI Pro - Casual Game](https://assetstore.unity.com/packages/2d/gui/gui-pro-casual-game-176695)
 ### Pixabay
 * Smack - Sound Effect by freesound_community from Pixabay
+### Fonts (SIL Open Font License version 1.1)
+* [Galmuri](https://quiple.dev/galmuri)
