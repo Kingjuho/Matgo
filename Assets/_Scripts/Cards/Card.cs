@@ -12,6 +12,7 @@ public class Card : MonoBehaviour
     public Sprite frontSprite;              // 앞면 이미지
     public Sprite backSprite;               // 뒷면 이미지
     private SpriteRenderer _spriteRenderer; // 스프라이트 렌더러 컴포넌트
+    private UnityEngine.Rendering.SortingGroup _sortingGroup;   // 렌더링 정렬 컴포넌트
 
     [Header("힌트 UI")]
     public SpriteRenderer topArrowIcon;     // 상단 힌트
@@ -36,6 +37,7 @@ public class Card : MonoBehaviour
     private void Awake() 
     { 
         _spriteRenderer = GetComponent<SpriteRenderer>();
+        _sortingGroup = GetComponent<UnityEngine.Rendering.SortingGroup>();
         _originalScale = transform.localScale;
     }
 
@@ -166,11 +168,10 @@ public class Card : MonoBehaviour
     /** 카드 레이어 세팅 함수 **/
     public void SetSortingOrder(string layerName, int order)
     {
-        UnityEngine.Rendering.SortingGroup sg = GetComponent<UnityEngine.Rendering.SortingGroup>();
-        if (sg != null)
+        if (_sortingGroup != null)
         {
-            sg.sortingLayerName = layerName;
-            sg.sortingOrder = order;
+            _sortingGroup.sortingLayerName = layerName;
+            _sortingGroup.sortingOrder = order;
         }
     }
 }
