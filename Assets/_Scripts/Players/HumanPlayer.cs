@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class HumanPlayer : Player
@@ -37,9 +38,9 @@ public class HumanPlayer : Player
             CardMonth currentMonth = (CardMonth) m;
 
             // 해당 월의 카드가 각각 어디에 몇 장 있는지 확인
-            int handCount = GetCountInList(handCards, currentMonth);
+            int handCount = handCards.Count(c => c.Month == currentMonth);
             int tableCount = GetCountOnTable(currentMonth);
-            int capturedCount = GetCountInList(capturedCards, currentMonth) + GetCountInList(GameManager.Instance.computerPlayer.capturedCards, currentMonth);
+            int capturedCount = capturedCards.Count(c => c.Month == currentMonth) + GameManager.Instance.computerPlayer.capturedCards.Count(c => c.Month == currentMonth);
 
             // 내 패에 없으면 스킵
             if (handCount == 0) continue;
@@ -80,16 +81,6 @@ public class HumanPlayer : Player
                     if (card.Month == currentMonth) card.ShowHint(resultHint);
             }
         }
-    }
-
-    /** 해당 리스트에서 지정한 월의 카드가 몇 장 있는지 탐색 **/
-    private int GetCountInList(List<Card> list, CardMonth month)
-    {
-        int count = 0;
-        foreach (var card in list) 
-            if (card.Month == month) count++;
-
-        return count;
     }
 
     /** 바닥패에 해당 월 카드가 몇 장 깔려있는지 탐색 **/
