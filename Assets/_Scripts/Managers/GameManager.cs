@@ -1,6 +1,7 @@
 ﻿using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -314,9 +315,9 @@ public class GameManager : MonoBehaviour
         // 났을 경우
         if (score >= 7 && score > currentPlayer.lastGoScore)
         {
-            // 고박 체크
+            // ~박 판정
             Player opponent = (currentPlayer == humanPlayer) ? computerPlayer : humanPlayer;
-            if (opponent.goCount > 0) opponent.isGobak = true;
+            EvaluatePenalty(currentPlayer, opponent);
 
             // 금액 계산
             long estimatedMoney = Utils.CalculateFinalMoney(score, currentPlayer, opponent, 500);
@@ -526,6 +527,26 @@ public class GameManager : MonoBehaviour
         foreach (Card c in cardsToCapture) currentPlayer.CaptureCard(c);
     }
 
+    /** ~박 판정 헬퍼 함수 **/
+    private void EvaluatePenalty(Player winner, Player loser)
+    {
+        // 고박
+        if (loser.goCount > 0) loser.isGobak = true;
+
+        // 피박, 광박, 멍박 판정을 위한 데이터 수집
+        int myPeeCount = winner.capturedCards.Sum(c => c.Type == CardType.Pee ? 1 : (c.Type == CardType.Ssangpee ? 2 : (c.Type == CardType.Threepee ? 3 : 0)));
+        int oppPeeCount = loser.capturedCards.Sum(c => c.Type == CardType.Pee ? 1 : (c.Type == CardType.Ssangpee ? 2 : (c.Type == CardType.Threepee ? 3 : 0)));
+        int myGwangCount = winner.capturedCards.Count(c => c.Type == CardType.Gwang);
+        int oppGwangCount = loser.capturedCards.Count(c => c.Type == CardType.Gwang);
+        int myYeolCount = winner.capturedCards.Count(c => c.Type == CardType.Yeolggeut);
+
+        // 피박
+        if (myPeeCount >= 10 && oppPeeCount <= 7) loser.isPeebak = true;
+        // 광박
+        if (myGwangCount >= 3 && oppGwangCount == 0) loser.isGwangbak = true;
+        // 멍박
+        if (myYeolCount >= 7) winner.isMeongbak = true;
+    }
 
     #region 디버깅용
 

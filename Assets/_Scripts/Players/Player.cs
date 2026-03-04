@@ -32,7 +32,7 @@ public abstract class Player : MonoBehaviour
     public bool isGobak = false;        // 고박 (상대 점수 x2)
     public bool isPeebak = false;       // 피박 (상대 점수 x2)
     public bool isGwangbak = false;     // 광박 (상대 점수 x2)
-    public bool isMeongbak = false;     // 멍박 (상대 점수 x2)
+    public bool isMeongbak = false;     // 멍박 (점수 x2)
 
     [Header("획득 패 앵커")]
     public Transform gwangAnchor;      // 광 (왼쪽)
