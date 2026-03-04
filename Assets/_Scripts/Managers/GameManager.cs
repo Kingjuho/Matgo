@@ -234,7 +234,7 @@ public class GameManager : MonoBehaviour
         }
 
         // 잠시 HandCards로 설정
-        lastDeckCard.SetSortingOrder("HandCards", 100);
+        lastDeckCard.SetSortingOrder(Constants.HandCards, 100);
 
         // 카드의 출발 위치를 덱 앵커로 세팅
         lastDeckCard.transform.position = CardDealer.deckAnchor.position;
@@ -433,7 +433,7 @@ public class GameManager : MonoBehaviour
 
             // 현재 유저의 피 앵커를 타겟으로 설정 및 레이어 정렬
             Vector3 targetPos = currentPlayer.peeAnchor.position;
-            stolenCard.SetSortingOrder("TableCards", 100);
+            stolenCard.SetSortingOrder(Constants.TableCards, 100);
 
             // 애니메이션 재생
             AnimationManager.Instance?.MoveCard(stolenCard, targetPos, Quaternion.identity, 0.4f);

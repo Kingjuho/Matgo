@@ -168,7 +168,7 @@ public abstract class Player : MonoBehaviour
             }
 
             // 레이어 설정 및 애니메이션 실행
-            c.SetSortingOrder("TableCards", order);
+            c.SetSortingOrder(Constants.TableCards, order);
             AnimationManager.Instance.MoveCard(c, targetPos, Quaternion.identity, 0.3f);
         }
     }

@@ -1,5 +1,4 @@
-﻿using DG.Tweening;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -114,9 +113,9 @@ public class CardDealer : MonoBehaviour
 
             // 렌더링 순서 세팅
             if (target == Target.Table)
-                card.SetSortingOrder("TableCards", orderInLayer);
+                card.SetSortingOrder(Constants.TableCards, orderInLayer);
             else
-                card.SetSortingOrder("HandCards", orderInLayer);
+                card.SetSortingOrder(Constants.HandCards, orderInLayer);
 
             // 애니메이션 재생
             AnimationManager.Instance.MoveCard(card, targetPos, targetRot, dealSpeed);
@@ -180,7 +179,7 @@ public class CardDealer : MonoBehaviour
             card.basePosition = targetPos;
 
             // 렌더링 순서 0부터 세팅
-            card.SetSortingOrder("HandCards", i);
+            card.SetSortingOrder(Constants.HandCards, i);
 
             // 애니메이션 재생
             AnimationManager.Instance.MoveCard(card, targetPos, targetRot, 0.2f);

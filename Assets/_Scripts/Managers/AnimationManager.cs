@@ -25,7 +25,7 @@ public class AnimationManager : MonoBehaviour
     public IEnumerator PlayDropCardToTable(Card card, Vector3 targetPos, int orderInLayer, bool isGiantHandCard = false)
     {
         // 레이어 변경
-        card.SetSortingOrder("TableCards", orderInLayer);
+        card.SetSortingOrder(Constants.TableCards, orderInLayer);
 
         // 스케일 확대 비율 설정
         float scaleMult = isGiantHandCard ? 2.0f : hoverScaleMultiplier;
