@@ -30,6 +30,9 @@ public class AnimationManager : MonoBehaviour
         // 스케일 확대 비율 설정
         float scaleMult = isGiantHandCard ? 2.0f : hoverScaleMultiplier;
 
+        // 화투가 뒷면일 경우 대비
+        card.FlipInstant(true);
+
         // 애니메이션 재생
         Vector3 baseScale = card.transform.localScale;
         card.transform.DOScale(baseScale * scaleMult, 0.1f).OnComplete(() =>
