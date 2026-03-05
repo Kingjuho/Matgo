@@ -14,8 +14,15 @@ public class Deck : MonoBehaviour
     // 덱 카운트
     public int Count { get => _cards.Count; }
 
-    void Start()
+    /** 덱 초기화 함수 **/
+    public void ResetDeck()
     {
+        // 씬에 존재하는 모든 Card 객체 파괴
+        Card[] leftovers = FindObjectsByType<Card>(FindObjectsSortMode.None);
+        foreach (Card c in leftovers) Destroy(c.gameObject);
+
+        // 초기화
+        _cards.Clear();
         GenerateDeck();
         Shuffle();
     }

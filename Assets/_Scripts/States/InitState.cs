@@ -7,14 +7,24 @@ public class InitState : GameStateBase
 
     public override IEnumerator Execute()
     {
+        // 플레이어 상태 초기화
+        GameManager.humanPlayer.StartGame();
+        GameManager.computerPlayer.StartGame();
+
+        // 바닥패 기록 초기화
+        GameManager.CardDealer.ResetDealer();
+
+        // 덱 재생성
+        GameManager.CardDealer.deck.ResetDeck();
+
+        // 뻑 기록 초기화
+        GameManager.bbuckRecords.Clear();
+
         // 디버깅용 치트 활성화
         yield return Cheat();
 
         // 패 분배
         yield return GameManager.CardDealer.DistributeCardsSequence();
-
-        // 데이터 초기화
-        GameManager.bbuckRecords.Clear();
 
         // 손패 정렬
         GameManager.humanPlayer.SortHandCards();

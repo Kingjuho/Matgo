@@ -39,6 +39,16 @@ public class CardDealer : MonoBehaviour
     // 배분 영역 열거형
     private enum Target { AI, Player, Table }
 
+    /** 딜러 데이터 초기화 **/
+    public void ResetDealer()
+    {
+        _tableCards.Clear();
+        _monthSlotMap.Clear();
+        _nextSlotIndex = 0;
+        _aiCount = 0;
+        _playerCount = 0;
+    }
+
     /** 전체 패 분배 코루틴 **/
     public IEnumerator DistributeCardsSequence()
     {
