@@ -16,7 +16,12 @@ public class GameManager : MonoBehaviour
     public Player currentPlayer;            // 현재 턴을 진행한 플레이어
 
     [Header("게임 판정용 데이터")]
+    // 뻑 기록장
     public Dictionary<CardMonth, Player> bbuckRecords = new Dictionary<CardMonth, Player>();
+    public int gameMultiplier = 1;          // 판 배당
+    public bool isNagari = false;           // 이번 판 나가리 여부
+    public Player finalWinner = null;       // 승자
+    public long finalAmount = 0;            // 획득 금액
 
     [Header("상태 머신")]
     public GameStateBase CurrentState { get; private set; }
