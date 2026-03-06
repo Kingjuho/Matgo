@@ -29,8 +29,10 @@ public static class Utils
         int finalMultiplier = winner.multiplier;
 
         // 흔들기, 폭탄 계산
-        if (winner.bombCount > 0) finalMultiplier *= 2 * winner.bombCount;
-        if (winner.shakeCount > 0) finalMultiplier *= 2 * winner.shakeCount;
+        for (int i = 0; i < winner.bombCount; i++)
+            finalMultiplier *= 2;
+        for (int i = 0; i < winner.shakeCount; i++)
+            finalMultiplier *= 2;
 
         // ~박 계산
         if (loser.isGobak) finalMultiplier *= 2;
