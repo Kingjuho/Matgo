@@ -47,6 +47,10 @@ public abstract class Player : MonoBehaviour
     /** 새 게임 시작 시 초기화 **/
     public virtual void StartGame()
     {
+        // 이전 판 카드 참조 제거
+        handCards.Clear();
+        capturedCards.Clear();
+
         // 게임 상태 초기화
         currentTurnCount = 0;
         currentScore = 0;
