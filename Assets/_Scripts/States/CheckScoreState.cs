@@ -15,8 +15,11 @@ public class CheckScoreState : GameStateBase
         // 났을 경우
         if (score >= 7 && score > GameManager.currentPlayer.lastGoScore)
         {
+            Player opponent = (GameManager.currentPlayer == GameManager.humanPlayer) 
+                ? GameManager.computerPlayer 
+                : GameManager.humanPlayer;
+
             // ~박 판정
-            Player opponent = (GameManager.currentPlayer == GameManager.humanPlayer) ? GameManager.computerPlayer : GameManager.humanPlayer;
             EvaluatePenalty(GameManager.currentPlayer, opponent);
 
             // 금액 계산
@@ -28,7 +31,7 @@ public class CheckScoreState : GameStateBase
             // AI가 났을 경우
             if (GameManager.currentPlayer == GameManager.computerPlayer)
             {
-                // TODO: AI가 현재 필드를 보고 판단하도록. 현재는 무조건 스톱
+                // TODO: AI 판단 로직 붙이기 전까지는 무조건 스톱
                 yield return new WaitForSeconds(1.0f);
                 isGo = false;
                 isDecisionMade = true;
@@ -42,23 +45,29 @@ public class CheckScoreState : GameStateBase
                     isGo = decision;
                     isDecisionMade = true;
                 });
+
                 yield return new WaitUntil(() => isDecisionMade);
+            }
 
-                // 고/스톱
-                if (isGo)
-                {
-                    GameManager.currentPlayer.goCount++;
-                    score++;
-                    GameManager.currentPlayer.lastGoScore = score;
+            // 고
+            if (isGo)
+            {
+                GameManager.currentPlayer.goCount++;
+                score++;
+                GameManager.currentPlayer.lastGoScore = score;
 
-                    // 3고 이상: 2배씩 증가
-                    if (GameManager.currentPlayer.goCount >= 3) GameManager.currentPlayer.DoubleMultiplier();
-                }
-                else
-                {
-                    GameManager.ChangeState(GameManager.StateGameOver);
-                    yield break;
-                }
+                // 3고 이상: 2배씩 증가
+                if (GameManager.currentPlayer.goCount >= 3) 
+                    GameManager.currentPlayer.DoubleMultiplier();
+            }
+            // 스톱
+            else
+            {
+                GameManager.finalWinner = GameManager.currentPlayer;
+                GameManager.finalAmount = estimatedMoney;
+
+                GameManager.ChangeState(GameManager.StateGameOver);
+                yield break;
             }
         }
 

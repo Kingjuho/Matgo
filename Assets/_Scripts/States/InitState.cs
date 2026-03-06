@@ -7,6 +7,17 @@ public class InitState : GameStateBase
 
     public override IEnumerator Execute()
     {
+        // 판 단위 상태 초기화
+        GameManager.isNagari = false;
+        GameManager.finalWinner = null;
+        GameManager.finalAmount = 0;
+        GameManager.lastPlayerCard = null;
+        GameManager.lastDeckCard = null;
+        GameManager.isBombThisTurn = false;
+        GameManager.isShakeThisTurn = false;
+        GameManager.isChoosingCard = false;
+        GameManager.selectedChoiceCard = null;
+
         // 플레이어 상태 초기화
         GameManager.humanPlayer.StartGame();
         GameManager.computerPlayer.StartGame();
