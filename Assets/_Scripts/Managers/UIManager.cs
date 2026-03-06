@@ -39,6 +39,16 @@ public class UIManager : MonoBehaviour
     // 콜백 함수
     private Action<bool> _onGukYeolggeutMadeCallback;
 
+    [Header("총통 팝업 UI")]
+    // UI
+    public GameObject presidentPopupPanel;
+    public Image presidentOption0_Image;
+    public Image presidentOption1_Image;
+    public Image presidentOption2_Image;
+    public Image presidentOption3_Image;
+    // 콜백 함수
+    private Action<bool> _onPresidentDecisionMadeCallback;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -66,12 +76,12 @@ public class UIManager : MonoBehaviour
         choice1_Button.onClick.AddListener(() => OnOptionClicked(0));
         choice2_Button.onClick.AddListener(() => OnOptionClicked(1));
 
-        choicePopupPanel.SetActive(true);
+        choicePopupPanel?.SetActive(true);
     }
     /** 2장 중 1장 선택 팝업 버튼 클릭 이벤트 **/
     private void OnOptionClicked(int index)
     {
-        choicePopupPanel.SetActive(false);
+        choicePopupPanel?.SetActive(false);
         // 선택한 카드를 넘겨주며 콜백
         _onChoiceMadeCallback?.Invoke(_currentOptions[index]);
     }
@@ -85,7 +95,7 @@ public class UIManager : MonoBehaviour
         shake2_Image.sprite = options[1].frontSprite;
         shake3_Image.sprite = options[2].frontSprite;
 
-        shakePopupPanel.SetActive(true);
+        shakePopupPanel?.SetActive(true);
     }
     /** 흔들기 팝업 닫기 **/
     public void HideShakePopup() => shakePopupPanel.SetActive(false);
@@ -101,32 +111,70 @@ public class UIManager : MonoBehaviour
             // txtStopMoney.text =  $"{calculatedMoney:#,##0}원";
             txtStopMoney.text = Utils.FormatMoney(calculatedMoney);
 
-        goStopPopupPanel.SetActive(true);
+        goStopPopupPanel?.SetActive(true);
     }
     /** 고/스톱 팝업 클릭 이벤트 **/
     public void OnGoOrStopClicked(bool isGo)
     {
         // true: 고, false: 스톱
-        goStopPopupPanel.SetActive(false);
+        goStopPopupPanel?.SetActive(false);
         _onGoStopMadeCallback?.Invoke(isGo);
     }
 
-    /** 국열끗 팝업 UI **/
+
+    /** 국열끗 팝업 **/
     public void ShowGukYeolggeutPopup(Action<bool> callback)
     {
         _onGukYeolggeutMadeCallback = callback;
-        gukYeolggeutPopupPanel.SetActive(true);
+        gukYeolggeutPopupPanel?.SetActive(true);
     }
     /** 국열끗 팝업 클릭 이벤트 **/
     public void OnGukYeolggeutButtonClicked(bool useAsSsangpee)
     {
         // true: 쌍피, false: 열끗
-        gukYeolggeutPopupPanel.SetActive(false);
+        gukYeolggeutPopupPanel?.SetActive(false);
         _onGukYeolggeutMadeCallback?.Invoke(useAsSsangpee);
     }
 
 
+    /** 총통 팝업 **/
+    public void ShowPresidentPopup(List<Card> cards, Action<bool> callback)
+    {
+        _onPresidentDecisionMadeCallback = callback;
 
+        // 참조가 비어 있으면 기본값은 즉시 승리
+        if (presidentPopupPanel == null)
+        {
+            _onPresidentDecisionMadeCallback?.Invoke(true);
+            return;
+        }
+
+        // 화투 이미지 삽입
+        Image[] optionImages =
+        {
+            presidentOption0_Image,
+            presidentOption1_Image,
+            presidentOption2_Image,
+            presidentOption3_Image
+        };
+        for (int i = 0; i < optionImages.Length; i++)
+        {
+            if (optionImages[i] == null) continue;
+
+            bool hasCard = cards != null && i < cards.Count;
+            optionImages[i].sprite = hasCard ? cards[i].frontSprite : null;
+            optionImages[i].enabled = hasCard;
+        }
+
+        presidentPopupPanel.SetActive(true);
+    }
+    /** 총통 팝업 클릭 이벤트 **/
+    public void OnPresidentButtonClicked(bool shouldStop)
+    {
+        // true: 즉시 10점 승리, false: 정상 진행
+        presidentPopupPanel?.SetActive(false);
+        _onPresidentDecisionMadeCallback?.Invoke(shouldStop);
+    }
 
     #region 디버깅용
 
@@ -138,12 +186,12 @@ public class UIManager : MonoBehaviour
     public void ShowCheatPopup(Action<int> callback)
     {
         _onCheatSelectedCallback = callback;
-        cheatPopupPanel.SetActive(true);
+        cheatPopupPanel?.SetActive(true);
     }
     /** 치트 팝업 버튼 클릭 이벤트 **/
     public void OnCheatButtonClicked(int monthValue)
     {
-        cheatPopupPanel.SetActive(false);
+        cheatPopupPanel?.SetActive(false);
         _onCheatSelectedCallback?.Invoke(monthValue);
     }
 

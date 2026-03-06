@@ -9,8 +9,16 @@ public class CheckPresidentState : GameStateBase
     public override IEnumerator Execute()
     {
         // 총통 체크를 위한 데이터
-        bool isPlayerChongtong = GameManager.humanPlayer.handCards.GroupBy(c => c.Month).Any(g => g.Count() == 4);
-        bool isAIChongtong = GameManager.computerPlayer.handCards.GroupBy(c => c.Month).Any(g => g.Count() == 4);
+        var playerChongtongGroup = GameManager.humanPlayer.handCards
+        .GroupBy(c => c.Month)
+        .FirstOrDefault(g => g.Count() == 4);
+
+        var aiChongtongGroup = GameManager.computerPlayer.handCards
+            .GroupBy(c => c.Month)
+            .FirstOrDefault(g => g.Count() == 4);
+
+        bool isPlayerChongtong = playerChongtongGroup != null;
+        bool isAIChongtong = aiChongtongGroup != null;
         bool isTableChongtong = GameManager.CardDealer.TableCards.Values.Any(list => list.Count == 4);
 
         // 바닥 총통, 동시 총통 -> 나가리
@@ -29,34 +37,35 @@ public class CheckPresidentState : GameStateBase
         if (chongtongPlayer != null)
         {
             // 게임 지속 여부 판정
-            bool isContinue = false;
+            bool shouldStop = true;
             bool isDecisionMade = false;
 
             // AI 총통
             if (chongtongPlayer == GameManager.computerPlayer)
             {
-                // AI는 무조건 끝낸다고 가정 (10점 승리)
-                isContinue = false;
+                // AI는 일단 즉시 승리
+                shouldStop = true;
                 isDecisionMade = true;
             }
             // 플레이어 총통
             else
             {
-                // TODO: UIManager.Instance.ShowChongtongPopup() 띄우고 (진행/종료) 입력 대기
-                // 임시로 무조건 10점으로 승리한다고 가정
-                isContinue = false;
-                isDecisionMade = true;
+                UIManager.Instance?.ShowPresidentPopup(playerChongtongGroup.ToList(), (decision) =>
+                {
+                    shouldStop = decision;
+                    isDecisionMade = true;
+                });
             }
 
             yield return new WaitUntil(() => isDecisionMade);
 
-            if (!isContinue)
+            if (shouldStop)
             {
                 // 10점으로 즉시 승리
                 GameManager.finalWinner = chongtongPlayer;
 
                 // 총통은 기본 10점에 판 배당 곱함
-                //(흔들기, 뻑 등은 없으므로 다이렉트 계산
+                // 흔들기, 뻑 등은 없으므로 다이렉트 계산
                 long baseStake = 500;
                 GameManager.finalAmount = 10 * baseStake * GameManager.gameMultiplier;
 
