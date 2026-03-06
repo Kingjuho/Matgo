@@ -37,6 +37,42 @@ public class ResolveMatchState : GameStateBase
         if (GameManager.CardDealer.GetTotalTableCardCount() == 0)
             yield return GameManager.StartCoroutine(StealOpponentPeeRoutine(1));
 
+        // 국열끗 쌍피 사용 체크
+        Card gukYeolggeut = GameManager.currentPlayer.capturedCards.Find
+        (
+            c => c.Month == CardMonth.Sep && c.Type == CardType.Yeolggeut
+        );
+
+        if (gukYeolggeut != null && !GameManager.currentPlayer.hasResolvedGukYeolggeutChoice)
+        {
+            bool isUseAsSsangpee = false;
+            bool isDecisionMade = false;
+
+            if (GameManager.currentPlayer == GameManager.computerPlayer)
+            {
+                // AI는 일단 쌍피로 사용
+                isUseAsSsangpee = true;
+                isDecisionMade = true;
+            }
+            else
+            {
+                UIManager.Instance?.ShowGukYeolggeutPopup((decision) =>
+                {
+                    isUseAsSsangpee = decision;
+                    isDecisionMade = true;
+                });
+            }
+
+            yield return new WaitUntil(() => isDecisionMade);
+
+            // 쌍피 선택 -> 카드의 타입을 쌍피로 변환
+            if (isUseAsSsangpee)
+            {
+                // 초기화
+                gukYeolggeut.Initialize(gukYeolggeut.Month, CardType.Ssangpee, gukYeolggeut.frontSprite, gukYeolggeut.Feature);
+            }
+        }
+
         // 해당 턴의 유저가 획득한 패 정렬
         GameManager.currentPlayer.OrganizeCapturedCards();
         yield return new WaitForSeconds(0.4f);

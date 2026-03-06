@@ -33,6 +33,12 @@ public class UIManager : MonoBehaviour
     // 콜백 함수
     private Action<bool> _onGoStopMadeCallback;
 
+    [Header("국열끗 팝업 UI")]
+    // UI
+    public GameObject gukYeolggeutPopupPanel;
+    // 콜백 함수
+    private Action<bool> _onGukYeolggeutMadeCallback;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -104,6 +110,22 @@ public class UIManager : MonoBehaviour
         goStopPopupPanel.SetActive(false);
         _onGoStopMadeCallback?.Invoke(isGo);
     }
+
+    /** 국열끗 팝업 UI **/
+    public void ShowGukYeolggeutPopup(Action<bool> callback)
+    {
+        _onGukYeolggeutMadeCallback = callback;
+        gukYeolggeutPopupPanel.SetActive(true);
+    }
+    /** 국열끗 팝업 클릭 이벤트 **/
+    public void OnGukYeolggeutButtonClicked(bool useAsSsangpee)
+    {
+        // true: 쌍피, false: 열끗
+        gukYeolggeutPopupPanel.SetActive(false);
+        _onGukYeolggeutMadeCallback?.Invoke(useAsSsangpee);
+    }
+
+
 
 
     #region 디버깅용

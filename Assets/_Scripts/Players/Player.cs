@@ -34,6 +34,10 @@ public abstract class Player : MonoBehaviour
     public bool isGwangbak = false;     // 광박 (상대 점수 x2)
     public bool isMeongbak = false;     // 멍박 (점수 x2)
 
+    [Header("특수 패 선택 상태")]
+    // 국열끗 쌍피
+    public bool hasResolvedGukYeolggeutChoice = false;
+
     [Header("획득 패 앵커")]
     public Transform gwangAnchor;      // 광 (왼쪽)
     public Transform yeolggeutAnchor;  // 열끗 (가운데 위)
@@ -68,6 +72,9 @@ public abstract class Player : MonoBehaviour
         isPeebak = false;
         isGwangbak = false;
         isMeongbak = false;
+
+        // 특수 패 선택 상태 초기화
+        hasResolvedGukYeolggeutChoice = false;
     }
 
     /** 턴 시작 시 초기화 **/
