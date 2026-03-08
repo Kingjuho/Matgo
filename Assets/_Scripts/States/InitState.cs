@@ -11,6 +11,7 @@ public class InitState : GameStateBase
         GameManager.isNagari = false;
         GameManager.finalWinner = null;
         GameManager.finalAmount = 0;
+        GameManager.finalScore = 0;
         GameManager.lastPlayerCard = null;
         GameManager.lastDeckCard = null;
         GameManager.isBombThisTurn = false;
@@ -21,6 +22,7 @@ public class InitState : GameStateBase
         // 플레이어 상태 초기화
         GameManager.humanPlayer.StartGame();
         GameManager.computerPlayer.StartGame();
+        RefreshGameUI();
 
         // 바닥패 기록 초기화
         GameManager.CardDealer.ResetDealer();

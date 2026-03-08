@@ -37,6 +37,7 @@ public class PlayHandCardState : GameStateBase
         {
             GameManager.isBombThisTurn = true;
             GameManager.currentPlayer.bombCount++;
+            RefreshGameUI();
 
             // 소지패에서 같은 월 3장을 모두 바닥패로 던짐
             CardMonth bombMonth = GameManager.lastPlayerCard.Month;
@@ -68,6 +69,7 @@ public class PlayHandCardState : GameStateBase
             {
                 GameManager.isShakeThisTurn = true;
                 GameManager.currentPlayer.shakeCount++;
+                RefreshGameUI();
 
                 // 소지패에서 같은 월 3장 검색
                 CardMonth shakeMonth = GameManager.lastPlayerCard.Month;

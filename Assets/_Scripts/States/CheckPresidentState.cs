@@ -72,6 +72,7 @@ public class CheckPresidentState : GameStateBase
             {
                 // 10점으로 즉시 승리
                 GameManager.finalWinner = chongtongPlayer;
+                GameManager.finalScore = 10;
 
                 // 총통은 기본 10점에 판 배당 곱함
                 // 흔들기, 뻑 등은 없으므로 다이렉트 계산

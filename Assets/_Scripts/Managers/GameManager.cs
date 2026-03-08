@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     public bool isNagari = false;           // 이번 판 나가리 여부
     public Player finalWinner = null;       // 승자
     public long finalAmount = 0;            // 획득 금액
+    public int finalScore = 0;              // 최종 승리 점수
 
     [Header("상태 머신")]
     public GameStateBase CurrentState { get; private set; }

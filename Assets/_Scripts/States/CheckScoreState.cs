@@ -9,8 +9,8 @@ public class CheckScoreState : GameStateBase
     public override IEnumerator Execute()
     {
         // 점수 계산
+        RefreshGameUI();
         int score = GameManager.currentPlayer.CalculateScore();
-        Debug.Log($"[{GameManager.currentPlayer.playerName}] 현재 점수: {score}점");
 
         // 났을 경우
         if (score >= 7 && score > GameManager.currentPlayer.lastGoScore)
@@ -21,14 +21,20 @@ public class CheckScoreState : GameStateBase
 
             // ~박 판정
             EvaluatePenalty(GameManager.currentPlayer, opponent);
+            RefreshGameUI();
 
             // 금액 계산
             long estimatedMoney = Utils.CalculateFinalMoney(score, GameManager.currentPlayer, opponent, 500);
 
             bool isGo = false;
 
+            // 손패가 없을 경우
+            if (GameManager.currentPlayer.handCards.Count == 0)
+            {
+                isGo = false;
+            }
             // AI가 났을 경우
-            if (GameManager.currentPlayer == GameManager.computerPlayer)
+            else if (GameManager.currentPlayer == GameManager.computerPlayer)
             {
                 // TODO: AI 판단 로직 붙이기 전까지는 무조건 스톱
                 yield return new WaitForSeconds(1.0f);
@@ -58,12 +64,15 @@ public class CheckScoreState : GameStateBase
                 // 3고 이상: 2배씩 증가
                 if (GameManager.currentPlayer.goCount >= 3) 
                     GameManager.currentPlayer.DoubleMultiplier();
+
+                RefreshGameUI();
             }
             // 스톱
             else
             {
                 GameManager.finalWinner = GameManager.currentPlayer;
                 GameManager.finalAmount = estimatedMoney;
+                GameManager.finalScore = score;
 
                 GameManager.ChangeState(GameManager.StateGameOver);
                 yield break;

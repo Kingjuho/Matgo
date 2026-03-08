@@ -23,7 +23,7 @@ public static class Utils
     }
 
     /** 승리시 획득 금액을 계산하는 헬퍼 함수 **/
-    public static long CalculateFinalMoney(int score, Player winner, Player loser, long baseStake = 500)
+    public static long CalculateFinalMoney(int score, Player winner, Player loser, long baseStake = 500, int tableMultiplier = 1)
     {
         // 기본 배당(고 배당 포함)
         int finalMultiplier = winner.multiplier;
@@ -40,8 +40,7 @@ public static class Utils
         if (loser.isGwangbak) finalMultiplier *= 2;
         if (winner.isMeongbak) finalMultiplier *= 2;
 
-        // TODO: 나가리, 미션 등 특수 배당 계산
-
-        return score * baseStake * finalMultiplier;
+        // 나가리, 미션 등 특수 배당 계산
+        return score * baseStake * finalMultiplier * tableMultiplier;
     }
 }

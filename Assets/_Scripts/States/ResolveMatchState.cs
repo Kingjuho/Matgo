@@ -81,6 +81,7 @@ public class ResolveMatchState : GameStateBase
 
         // 해당 턴의 유저가 획득한 패 정렬
         GameManager.currentPlayer.OrganizeCapturedCards();
+        RefreshGameUI();
         yield return new WaitForSeconds(0.4f);
 
         // 판정 시간
@@ -173,6 +174,7 @@ public class ResolveMatchState : GameStateBase
         else if (totalCount == 3)
         {
             GameManager.currentPlayer.BbuckCount++;
+            RefreshGameUI();
 
             // 첫뻑 확인
             if (GameManager.currentPlayer.currentTurnCount == 1)

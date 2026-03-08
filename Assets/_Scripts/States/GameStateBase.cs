@@ -41,4 +41,16 @@ public abstract class GameStateBase
         yield return new WaitUntil(() => isResolved);
         onResolved?.Invoke(result);
     }
+
+    /** UI 갱신 **/
+    protected void RefreshGameUI()
+    {
+        if (GameManager.humanPlayer != null)
+            GameManager.humanPlayer.CalculateScore();
+
+        if (GameManager.computerPlayer != null)
+            GameManager.computerPlayer.CalculateScore();
+
+        UIManager.Instance?.RefreshAllGameUI(GameManager.humanPlayer, GameManager.computerPlayer);
+    }
 }

@@ -4,9 +4,28 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+[Serializable]
+public class InGamePlayerUI
+{
+    public TextMeshProUGUI txtScore;
+    public TextMeshProUGUI txtCurrentGo;
+    public TextMeshProUGUI txtPeebak;
+    public TextMeshProUGUI txtGwangbak;
+    public TextMeshProUGUI txtShake;
+    public TextMeshProUGUI txtBbuck;
+    public TextMeshProUGUI txtMoney;
+}
+
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
+
+    [Header("인게임 정보 UI")]
+    public InGamePlayerUI humanInfoUI;                      // 플레이어 UI
+    public InGamePlayerUI computerInfoUI;                   // 컴퓨터 UI
+    // 반투명 UI 알파값
+    [Range(0f, 1f)] public float inactiveTextAlpha = 0.2f;
+    [Range(0f, 1f)] public float activeTextAlpha = 1.0f;
 
     [Header("선택 팝업 UI")]
     // UI
@@ -48,6 +67,20 @@ public class UIManager : MonoBehaviour
     public Image presidentOption3_Image;
     // 콜백 함수
     private Action<bool> _onPresidentDecisionMadeCallback;
+
+    [Header("승리 팝업 UI")]
+    // UI
+    public GameObject winPopupPanel;
+    public TextMeshProUGUI txtWinAmount;
+    public TextMeshProUGUI txtWinScore;
+
+    [Header("패배 팝업 UI")]
+    // UI
+    public GameObject losePopupPanel;
+    public TextMeshProUGUI txtLoseAmount;
+    public TextMeshProUGUI txtLoseScore;
+    // 콜백 함수(승리 팝업 UI도 같이 사용)
+    private Action<bool> _onGameOverConfirmCallback;
 
     private void Awake()
     {
@@ -189,6 +222,103 @@ public class UIManager : MonoBehaviour
         // true: 즉시 10점 승리, false: 정상 진행
         presidentPopupPanel?.SetActive(false);
         _onPresidentDecisionMadeCallback?.Invoke(shouldStop);
+    }
+
+
+    /** 승패 팝업 **/
+    public bool ShowGameOverPopup(Player winner, long finalAmount, int finalScore, Action<bool> callback)
+    {
+        _onGameOverConfirmCallback = callback;
+
+        bool isHumanWin = winner == GameManager.Instance.humanPlayer;
+
+        if (isHumanWin)
+        {
+            if (winPopupPanel == null || txtWinAmount == null || txtWinScore == null)
+                return false;
+
+            losePopupPanel?.SetActive(false);
+
+            txtWinAmount.text = $"+{Utils.FormatMoney(finalAmount)}";
+            txtWinScore.text = $"{finalScore}점";
+
+            winPopupPanel.SetActive(true);
+            return true;
+        }
+        else
+        {
+            if (losePopupPanel == null || txtLoseAmount == null || txtLoseScore == null)
+                return false;
+
+            winPopupPanel?.SetActive(false);
+
+            txtLoseAmount.text = $"-{Utils.FormatMoney(finalAmount)}";
+            txtLoseScore.text = $"{finalScore}점";
+
+            losePopupPanel.SetActive(true);
+            return true;
+        }
+    }
+    /** 승패 팝업 확인 버튼 클릭 이벤트 **/
+    public void OnGameOverConfirmClicked()
+    {
+        winPopupPanel?.SetActive(false);
+        losePopupPanel?.SetActive(false);
+        _onGameOverConfirmCallback?.Invoke(true);
+    }
+
+
+    /** 인게임 정보 UI 전체 갱신 **/
+    public void RefreshAllGameUI(Player humanPlayer, Player computerPlayer)
+    {
+        RefreshPlayerInfoUI(humanPlayer, humanInfoUI);
+        RefreshPlayerInfoUI(computerPlayer, computerInfoUI);
+    }
+    /** 인게임 정보 UI 갱신 **/
+    private void RefreshPlayerInfoUI(Player player, InGamePlayerUI infoUI)
+    {
+        if (player == null || infoUI == null) return;
+
+        SetCounterText(infoUI.txtScore, $"{player.currentScore}점", player.currentScore > 0);
+        SetCounterText(infoUI.txtCurrentGo, $"{player.goCount}고", player.goCount > 0);
+
+        SetTextAlpha(infoUI.txtPeebak, player.isPeebak);
+        SetTextAlpha(infoUI.txtGwangbak, player.isGwangbak);
+
+        int shakeTotal = player.shakeCount + player.bombCount;
+        SetCounterText(infoUI.txtShake, $"{shakeTotal}흔", shakeTotal > 0);
+        SetCounterText(infoUI.txtBbuck, $"{player.BbuckCount}뻑", player.BbuckCount > 0);
+
+        if (infoUI.txtMoney != null)
+            infoUI.txtMoney.text = Utils.FormatMoney(player.money);
+    }
+    /** 돈 UI 갱신 **/
+    public void RefreshMoneyUI(Player humanPlayer, Player computerPlayer)
+    {
+        if (humanInfoUI != null && humanInfoUI.txtMoney != null && humanPlayer != null)
+            humanInfoUI.txtMoney.text = Utils.FormatMoney(humanPlayer.money);
+
+        if (computerInfoUI != null && computerInfoUI.txtMoney != null && computerPlayer != null)
+            computerInfoUI.txtMoney.text = Utils.FormatMoney(computerPlayer.money);
+    }
+
+    /** UI 텍스트 숫자 헬퍼 함수 **/
+    private void SetCounterText(TextMeshProUGUI target, string value, bool isActive)
+    {
+        if (target == null) return;
+
+        target.text = value;
+        SetTextAlpha(target, isActive);
+    }
+
+    /** UI 텍스트 알파값 헬퍼 함수 **/
+    private void SetTextAlpha(TextMeshProUGUI target, bool isActive)
+    {
+        if (target == null) return;
+
+        Color color = target.color;
+        color.a = isActive ? activeTextAlpha : inactiveTextAlpha;
+        target.color = color;
     }
 
     #region 디버깅용
