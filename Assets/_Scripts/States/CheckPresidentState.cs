@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -10,8 +11,8 @@ public class CheckPresidentState : GameStateBase
     {
         // 총통 체크를 위한 데이터
         var playerChongtongGroup = GameManager.humanPlayer.handCards
-        .GroupBy(c => c.Month)
-        .FirstOrDefault(g => g.Count() == 4);
+            .GroupBy(c => c.Month)
+            .FirstOrDefault(g => g.Count() == 4);
 
         var aiChongtongGroup = GameManager.computerPlayer.handCards
             .GroupBy(c => c.Month)
@@ -31,33 +32,41 @@ public class CheckPresidentState : GameStateBase
 
         // 단일 총통
         Player chongtongPlayer = null;
-        if (isPlayerChongtong) chongtongPlayer = GameManager.humanPlayer;
-        else if (isAIChongtong) chongtongPlayer = GameManager.computerPlayer;
+        List<Card> chongtongCards = null;
+
+        // 총통 여부 확인
+        if (isPlayerChongtong)
+        {
+            chongtongPlayer = GameManager.humanPlayer;
+            chongtongCards = playerChongtongGroup.ToList();
+        }
+        else if (isAIChongtong)
+        {
+            chongtongPlayer = GameManager.computerPlayer;
+            chongtongCards = aiChongtongGroup.ToList();
+        }
 
         if (chongtongPlayer != null)
         {
-            // 게임 지속 여부 판정
             bool shouldStop = true;
-            bool isDecisionMade = false;
 
             // AI 총통
             if (chongtongPlayer == GameManager.computerPlayer)
             {
                 // AI는 일단 즉시 승리
                 shouldStop = true;
-                isDecisionMade = true;
             }
             // 플레이어 총통
             else
             {
-                UIManager.Instance?.ShowPresidentPopup(playerChongtongGroup.ToList(), (decision) =>
-                {
-                    shouldStop = decision;
-                    isDecisionMade = true;
-                });
+                yield return WaitForPopupResult
+                (
+                    callback => UIManager.Instance != null &&
+                                UIManager.Instance.ShowPresidentPopup(chongtongCards, callback),
+                    decision => shouldStop = decision,
+                    true
+                );
             }
-
-            yield return new WaitUntil(() => isDecisionMade);
 
             if (shouldStop)
             {

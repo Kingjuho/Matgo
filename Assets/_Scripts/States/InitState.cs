@@ -53,15 +53,13 @@ public class InitState : GameStateBase
     private IEnumerator Cheat()
     {
         int cheatMonth = -1;
-        bool isCheatSelected = false;
 
-        UIManager.Instance?.ShowCheatPopup((selectedMonth) =>
-        {
-            cheatMonth = selectedMonth;
-            isCheatSelected = true;
-        });
-
-        yield return new WaitUntil(() => isCheatSelected);
+        yield return WaitForPopupResult(
+            callback => UIManager.Instance != null &&
+                        UIManager.Instance.ShowCheatPopup(callback),
+            selectedMonth => cheatMonth = selectedMonth,
+            -1
+        );
 
         if (cheatMonth >= 1 && cheatMonth <= 12)
             GameManager.CardDealer.deck.StackDeckForPlayer((CardMonth)cheatMonth);

@@ -16,7 +16,7 @@ public class UIManager : MonoBehaviour
     public Button choice1_Button;
     public Button choice2_Button;
     // 콜백 함수
-    private Action<Card> _onChoiceMadeCallback;
+    private Action<Card> _onChoiceSelectedCallback;
     private List<Card> _currentOptions;
 
     [Header("흔들기 팝업 UI")]
@@ -61,29 +61,41 @@ public class UIManager : MonoBehaviour
     }
 
     /** 2장 중 1장 선택 팝업 **/
-    public void ShowChoicePopup(List<Card> options, Action<Card> callback)
+    public bool ShowChoicePopup(List<Card> options, Action<Card> callback)
     {
+        _onChoiceSelectedCallback = callback;
         _currentOptions = options;
-        _onChoiceMadeCallback = callback;
 
-        // 화투패 이미지 뒤집어 씌우기
+        if (choicePopupPanel == null ||
+            choice1_Image == null || choice2_Image == null ||
+            choice1_Button == null || choice2_Button == null ||
+            options == null || options.Count < 2)
+        {
+            return false;
+        }
+
         choice1_Image.sprite = options[0].frontSprite;
         choice2_Image.sprite = options[1].frontSprite;
 
-        // 버튼 리스너 재설정
         choice1_Button.onClick.RemoveAllListeners();
-        choice2_Button.onClick.RemoveAllListeners();
         choice1_Button.onClick.AddListener(() => OnOptionClicked(0));
+
+        choice2_Button.onClick.RemoveAllListeners();
         choice2_Button.onClick.AddListener(() => OnOptionClicked(1));
 
-        choicePopupPanel?.SetActive(true);
+        choicePopupPanel.SetActive(true);
+        return true;
     }
     /** 2장 중 1장 선택 팝업 버튼 클릭 이벤트 **/
     private void OnOptionClicked(int index)
     {
         choicePopupPanel?.SetActive(false);
+        
+        if (_currentOptions == null || index < 0 || index >= _currentOptions.Count)
+            return;
+
         // 선택한 카드를 넘겨주며 콜백
-        _onChoiceMadeCallback?.Invoke(_currentOptions[index]);
+        _onChoiceSelectedCallback?.Invoke(_currentOptions[index]);
     }
 
 
@@ -102,16 +114,17 @@ public class UIManager : MonoBehaviour
 
 
     /** 고/스톱 팝업 **/
-    public void ShowGoStopPopup(long calculatedMoney, Action<bool> callback)
+    public bool ShowGoStopPopup(long calculatedMoney, Action<bool> callback)
     {
         _onGoStopMadeCallback = callback;
 
-        // 스톱 시 획득 금액 갱신
-        if (txtStopMoney != null)
-            // txtStopMoney.text =  $"{calculatedMoney:#,##0}원";
-            txtStopMoney.text = Utils.FormatMoney(calculatedMoney);
+        if (goStopPopupPanel == null || txtStopMoney == null)
+            return false;
 
-        goStopPopupPanel?.SetActive(true);
+        txtStopMoney.text = Utils.FormatMoney(calculatedMoney);
+
+        goStopPopupPanel.SetActive(true);
+        return true;
     }
     /** 고/스톱 팝업 클릭 이벤트 **/
     public void OnGoOrStopClicked(bool isGo)
@@ -123,10 +136,15 @@ public class UIManager : MonoBehaviour
 
 
     /** 국열끗 팝업 **/
-    public void ShowGukYeolggeutPopup(Action<bool> callback)
+    public bool ShowGukYeolggeutPopup(Action<bool> callback)
     {
         _onGukYeolggeutMadeCallback = callback;
-        gukYeolggeutPopupPanel?.SetActive(true);
+
+        if (gukYeolggeutPopupPanel == null)
+            return false;
+
+        gukYeolggeutPopupPanel.SetActive(true);
+        return true;
     }
     /** 국열끗 팝업 클릭 이벤트 **/
     public void OnGukYeolggeutButtonClicked(bool useAsSsangpee)
@@ -138,25 +156,21 @@ public class UIManager : MonoBehaviour
 
 
     /** 총통 팝업 **/
-    public void ShowPresidentPopup(List<Card> cards, Action<bool> callback)
+    public bool ShowPresidentPopup(List<Card> cards, Action<bool> callback)
     {
         _onPresidentDecisionMadeCallback = callback;
 
-        // 참조가 비어 있으면 기본값은 즉시 승리
         if (presidentPopupPanel == null)
-        {
-            _onPresidentDecisionMadeCallback?.Invoke(true);
-            return;
-        }
+            return false;
 
-        // 화투 이미지 삽입
         Image[] optionImages =
         {
-            presidentOption0_Image,
-            presidentOption1_Image,
-            presidentOption2_Image,
-            presidentOption3_Image
-        };
+        presidentOption0_Image,
+        presidentOption1_Image,
+        presidentOption2_Image,
+        presidentOption3_Image
+    };
+
         for (int i = 0; i < optionImages.Length; i++)
         {
             if (optionImages[i] == null) continue;
@@ -167,6 +181,7 @@ public class UIManager : MonoBehaviour
         }
 
         presidentPopupPanel.SetActive(true);
+        return true;
     }
     /** 총통 팝업 클릭 이벤트 **/
     public void OnPresidentButtonClicked(bool shouldStop)
@@ -183,10 +198,15 @@ public class UIManager : MonoBehaviour
     private Action<int> _onCheatSelectedCallback;
 
     /** 치트 팝업 띄우기 **/
-    public void ShowCheatPopup(Action<int> callback)
+    public bool ShowCheatPopup(Action<int> callback)
     {
         _onCheatSelectedCallback = callback;
-        cheatPopupPanel?.SetActive(true);
+
+        if (cheatPopupPanel == null)
+            return false;
+
+        cheatPopupPanel.SetActive(true);
+        return true;
     }
     /** 치트 팝업 버튼 클릭 이벤트 **/
     public void OnCheatButtonClicked(int monthValue)

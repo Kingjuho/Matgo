@@ -26,7 +26,6 @@ public class CheckScoreState : GameStateBase
             long estimatedMoney = Utils.CalculateFinalMoney(score, GameManager.currentPlayer, opponent, 500);
 
             bool isGo = false;
-            bool isDecisionMade = false;
 
             // AI가 났을 경우
             if (GameManager.currentPlayer == GameManager.computerPlayer)
@@ -34,19 +33,18 @@ public class CheckScoreState : GameStateBase
                 // TODO: AI 판단 로직 붙이기 전까지는 무조건 스톱
                 yield return new WaitForSeconds(1.0f);
                 isGo = false;
-                isDecisionMade = true;
             }
             // 플레이어가 났을 경우
             else
             {
                 // GoStop 팝업 표시
-                UIManager.Instance?.ShowGoStopPopup(estimatedMoney, (decision) =>
-                {
-                    isGo = decision;
-                    isDecisionMade = true;
-                });
-
-                yield return new WaitUntil(() => isDecisionMade);
+                yield return WaitForPopupResult
+                (
+                    callback => UIManager.Instance != null &&
+                                UIManager.Instance.ShowGoStopPopup(estimatedMoney, callback),
+                    decision => isGo = decision,
+                    false
+                );
             }
 
             // 고
@@ -54,6 +52,7 @@ public class CheckScoreState : GameStateBase
             {
                 GameManager.currentPlayer.goCount++;
                 score++;
+                GameManager.currentPlayer.currentScore = score;
                 GameManager.currentPlayer.lastGoScore = score;
 
                 // 3고 이상: 2배씩 증가

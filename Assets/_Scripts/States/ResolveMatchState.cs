@@ -46,30 +46,36 @@ public class ResolveMatchState : GameStateBase
         if (gukYeolggeut != null && !GameManager.currentPlayer.hasResolvedGukYeolggeutChoice)
         {
             bool isUseAsSsangpee = false;
-            bool isDecisionMade = false;
 
             if (GameManager.currentPlayer == GameManager.computerPlayer)
             {
                 // AI는 일단 쌍피로 사용
                 isUseAsSsangpee = true;
-                isDecisionMade = true;
             }
             else
             {
-                UIManager.Instance?.ShowGukYeolggeutPopup((decision) =>
-                {
-                    isUseAsSsangpee = decision;
-                    isDecisionMade = true;
-                });
+                yield return WaitForPopupResult
+                (
+                    callback => UIManager.Instance != null &&
+                                UIManager.Instance.ShowGukYeolggeutPopup(callback),
+                    decision => isUseAsSsangpee = decision,
+                    false
+                );
             }
 
-            yield return new WaitUntil(() => isDecisionMade);
+            // 사용 확인
+            GameManager.currentPlayer.hasResolvedGukYeolggeutChoice = true;
 
             // 쌍피 선택 -> 카드의 타입을 쌍피로 변환
             if (isUseAsSsangpee)
             {
-                // 초기화
-                gukYeolggeut.Initialize(gukYeolggeut.Month, CardType.Ssangpee, gukYeolggeut.frontSprite, gukYeolggeut.Feature);
+                gukYeolggeut.Initialize
+                (
+                    gukYeolggeut.Month, 
+                    CardType.Ssangpee, 
+                    gukYeolggeut.frontSprite, 
+                    gukYeolggeut.Feature
+                );
             }
         }
 
@@ -105,14 +111,17 @@ public class ResolveMatchState : GameStateBase
         else
         {
             // UIManager 호출, 콜백
-            UIManager.Instance?.ShowChoicePopup(options, (chosenCard) =>
-            {
-                GameManager.selectedChoiceCard = chosenCard;
-                GameManager.isChoosingCard = false;
-            });
-
-            // 선택될 때까지 대기
-            yield return new WaitUntil(() => !GameManager.isChoosingCard);
+            yield return WaitForPopupResult
+            (
+                callback => UIManager.Instance != null &&
+                            UIManager.Instance.ShowChoicePopup(options, callback),
+                chosenCard =>
+                {
+                    GameManager.selectedChoiceCard = chosenCard;
+                    GameManager.isChoosingCard = false;
+                },
+                options[0]
+            );
         }
 
         // 낸 패 획득
